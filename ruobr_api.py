@@ -7,7 +7,7 @@ ruobr.ru/api
 Библиотека для доступа к API электронного дневника.
 Пример:
 
-   >>> from ruobr import Ruobr
+   >>> from ruobr_api import Ruobr
    >>> r = Ruobr('username', 'password')
    >>> r.getUser()
    {'status': 'child', 'first_name': 'Иванов', 'last_name': 'Иван', 'middle_name': 'Иванович', 'school': 'Школа 1', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': '9В', 'id': 9999999, 'gps_tracker': False}
@@ -40,11 +40,6 @@ class Ruobr(object):
 
         self.getUser()
 
-    def setChild(self, id):
-        """Установить номер ребёнка, если профиль родительский"""
-        self.child = id
-        self.getUser()
-
     def get(self, target):
         """Метод для получения данных"""
         response = requests.get(
@@ -66,8 +61,8 @@ class Ruobr(object):
         return response
 
     def getUser(self):
-        """Аутентифицирует и возвращает информацию об ученике
-        Если профиль родительский, используйте метод setChild для выбора ребёнка
+        """Возвращает информацию об ученике
+        Если профиль родительский, используйте метод Ruobr.setChild() для выбора ребёнка
 
         {'status': 'child', 'first_name': 'first_name', 'last_name': 'last_name', 'middle_name': 'middle_name', 'school': 'school', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': 'group', 'id': 9999999, 'gps_tracker': False}"""
         user = self.get("user/")
@@ -78,8 +73,7 @@ class Ruobr(object):
         return user
 
     def getChildren(self):
-        """Возвращает список детей аккаунта
-        После изменения переменной child необходимо вызвать getUser()
+        """Возвращает список детей текущего аккаунта (для обработки родительских профилей)
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
         user = self.get("user/")
@@ -89,6 +83,12 @@ class Ruobr(object):
         else:
             user = [user]
         return user
+
+    def setChild(self, id):
+        """Установить номер ребёнка, если профиль родительский"""
+        self.child = id
+        self.getUser()
+
 
     def getMail(self):
         """Возвращает почту
