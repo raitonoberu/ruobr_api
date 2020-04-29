@@ -86,9 +86,9 @@ class Ruobr(object):
 
     def setChild(self, id):
         """Установить номер ребёнка, если профиль родительский"""
-        self.child = id
-        self.getUser()
-
+        if self.child != id:
+            self.child = id
+            self.getUser()
 
     def getMail(self):
         """Возвращает почту
@@ -144,14 +144,6 @@ class Ruobr(object):
 
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
         return self.get(f"food/?child={self.user['id']}")['account']
-
-    '''
-    def getFoodComplex(self):
-        """Судя по всему, это получение списка комплексов, но сейчас это не работает
-
-        []"""
-        return self.get(f"food/complex/?child={self.user['id']}")['complex_list']
-    '''
 
     def getFoodHistory(self, start=None, end=None):
         """Возвращает историю питания (обыычно start - первый день года, end - последний)
