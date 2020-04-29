@@ -10,7 +10,7 @@ class ruobr.**Ruobr**(username, password)
 
 **getUser**()
 
-Возвращает информацию об ученике. Если профиль родительский, используйте метод Ruobr.setChild для выбора ребёнка
+Возвращает информацию об ученике. Выполняется сразу после авторизации, ответ сохраняется в переменную user. Если профиль родительский, используйте метод Ruobr.setChild для выбора ребёнка
 
 Пример вывода:
 ```{'status': 'child', 'first_name': 'Иванов', 'last_name': 'Иван', 'middle_name': 'Иванович', 'school': 'Школа 1', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': '9В', 'id': 9999999, 'gps_tracker': False}```
