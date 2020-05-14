@@ -105,13 +105,19 @@ class Ruobr(object):
     def getTimetable(self, start, end):
         """Возвращает дневник целиком
         Пример даты: '2020-04-27'
+        (дата также может быть объектом datetime.datetime)
 
         [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
+        if isinstance(start, datetime):
+            start = start.strftime("%Y-%m-%d")
+        if isinstance(end, datetime):
+            end = end.strftime("%Y-%m-%d")
         return self.get(f"timetable/?start={start}&end={end}&child={self.user['id']}")['lessons']
 
     def getHomework(self, start, end):
         """Возвращает список домашнего задания (выборка из дневника)
         Пример даты: '2020-04-27'
+        (дата также может быть объектом datetime.datetime)
 
         [{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
         timetable = self.getTimetable(start, end)
@@ -125,18 +131,25 @@ class Ruobr(object):
     def getProgerss(self, date=None):
         """Возвращает статистику ученика (дата - обычно сегодня)
         Пример даты: '2020-04-27'
+        (дата также может быть объектом datetime.datetime)
 
         {'period_name': '4-я четверть', 'place_count': 23, 'subjects': [{'place_count': 17, 'place': 3, 'group_avg': 3.69, 'child_avg': 4.29, 'parallels_avg': 3.56, 'subject': 'Русский язык'}, ...], 'place': 7, 'group_avg': 4.05, 'child_avg': 4.28, 'parallels_avg': 3.84}"""
         if date is None:
             date = datetime.now().strftime("%Y-%m-%d")
+        elif isinstance(date, datetime):
+            date = date.strftime("%Y-%m-%d")
         return self.get(f"progress/?child={self.user['id']}&date={date}")
 
     def getMark(self, start, end):
         """Возвращает оценки по дням
         Пример даты: '2020-04-27'
+        (дата также может быть объектом datetime.datetime)
 
         {'Русский язык': [{'question_name': 'Ответ на уроке', 'question_id': 104552170, 'number': 1, 'question_type': 'Ответ на уроке', 'mark': '4'}, ...], ...}"""
-
+        if isinstance(start, datetime):
+            start = start.strftime("%Y-%m-%d")
+        if isinstance(end, datetime):
+            end = end.strftime("%Y-%m-%d")
         return self.get(f"mark/?child={self.user['id']}&start={start}&end={end}")['subjects']
 
     def getFoodInfo(self):
@@ -148,10 +161,16 @@ class Ruobr(object):
     def getFoodHistory(self, start=None, end=None):
         """Возвращает историю питания (обыычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
+        (дата также может быть объектом datetime.datetime)
 
         [{'date': '2020-01-13', 'state': 30, 'complex__code': 'А', 'complex__uid': 'dacd83e5-2dd6-11e8-a63a-00155d039800', 'state_str': 'Заказ подтверждён', 'complex__name': 'Альтернативно-молочный', 'id': 63217607}, ...]"""
         if start is None and end is None:
             year = datetime.now().year
             start = f"{year}-01-01"
             end = f"{year}-12-31"
+        else:
+            if isinstance(start, datetime):
+                start = start.strftime("%Y-%m-%d")
+            if isinstance(end, datetime):
+                end = end.strftime("%Y-%m-%d")
         return self.get(f"food/history/?child={self.user['id']}&end={end}&start={start}")['events']
