@@ -145,7 +145,7 @@ class Ruobr(object):
         return self.get(f"progress/?child={self.user['id']}&date={date}")
 
     def getMark(self, start, end):
-        """Возвращает оценки по дням
+        """Возвращает оценки за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
 
@@ -157,7 +157,7 @@ class Ruobr(object):
         return self.get(f"mark/?child={self.user['id']}&start={start}&end={end}")['subjects']
 
     def getAttendance(self, start, end):
-        """Возвращает пропуски в указанный период
+        """Возвращает пропуски за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
 
