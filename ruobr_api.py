@@ -111,7 +111,7 @@ class Ruobr(object):
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
 
-        [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
+        [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teachers Name'}, ...]"""
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
@@ -155,6 +155,18 @@ class Ruobr(object):
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
         return self.get(f"mark/?child={self.user['id']}&start={start}&end={end}")['subjects']
+
+    def getAttendance(self, start, end):
+        """Возвращает пропуски в указанный период
+        Пример даты: '2020-04-27'
+        (дата также может быть объектом datetime.datetime)
+
+        {'Русский язык': ['УП', 'Н', ...], ...}"""
+        if isinstance(start, datetime):
+            start = start.strftime("%Y-%m-%d")
+        if isinstance(end, datetime):
+            end = end.strftime("%Y-%m-%d")
+        return self.get(f"attendance/?child={self.user['id']}&start={start}&end={end}")['subjects']
 
     def getFoodInfo(self):
         """Возвращает информацию о счёте питания
