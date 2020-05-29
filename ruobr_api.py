@@ -46,10 +46,11 @@ class Ruobr(object):
             f'https://ruobr.ru/api/{target}',
             headers={"password": self.password, "username": self.username},
         )
-        if response.status_code != 200:
+        try:
+            response = response.json()
+        except:
             raise Ruobr.noSuccess(
                 f"Произошла ошибка на сервере: {response.status_code}")
-        response = response.json()
         if isinstance(response, dict):  # В случае ошибки возвращается словарь
             if "success" in response.keys():
                 if not(response['success']):
