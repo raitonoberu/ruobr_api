@@ -100,6 +100,10 @@ class Ruobr(object):
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
         return self.get("mail/")['messages']
 
+    def readMessage(self, id):
+        """Помечает сообщение как прочитанное"""
+        self.get(f"mail/read/?message={id}")
+
     def getControlmark(self):
         """Возвращает итоговые оценки
 
@@ -131,6 +135,13 @@ class Ruobr(object):
                 homework.append(lesssion)
 
         return homework
+
+    def getHomeworkById(id, type="group"):
+        """Возвращает HTML-страницу (в байтах) с  подробной информацией о домашнем задании.
+        Не требует авторизации"""
+        response = requests.get(
+            f'https://ruobr.ru/api/homework/?homework={id}&type={type}')
+        return response.content
 
     def getProgerss(self, date=None):
         """Возвращает статистику ученика (дата - обычно сегодня)
