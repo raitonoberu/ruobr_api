@@ -34,6 +34,11 @@ class ruobr.**Ruobr**(username, password)
 Пример вывода:
 ```[{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]```
 
+**readMessage**(id)
+
+Помечает сообщение как прочитанное
+- id(int/str) - ID сообщения, полученный с помощью getMail()
+
 **getControlmark**()
 
 Возвращает итоговые оценки
@@ -58,6 +63,12 @@ class ruobr.**Ruobr**(username, password)
 
 Пример вывода:
 ```[{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]```
+
+**getHomeworkById**(id, type="group")
+
+Возвращает HTML-страницу (в байтах) с  подробной информацией о домашнем задании. Не требует авторизации
+- id(int/str) - ID домашнего задания, полученный с помощью getHomework()
+- type(str) - тип домашнего задания, полученный с помощью getHomework() (обычно "group")
 
 **getProgerss**(date=None)
 
