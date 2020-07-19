@@ -6,7 +6,7 @@ import asyncio
 # Симуляция множества пользователей
 # Не перестарайтесь, а то нарвётесь на защиту от DDoS атак :)
 number_of_users = 10
-users = [("***REMOVED***", "***REMOVED***") for i in range(number_of_users)]
+users = [("username", "password") for i in range(number_of_users)]
 
 
 def syncruobr(username, password):
