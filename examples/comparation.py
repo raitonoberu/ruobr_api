@@ -2,11 +2,13 @@ from ruobr_api import Ruobr
 
 # Авторизация
 u1 = Ruobr("username1", "password1")
+u1.getUser()
 u2 = Ruobr("username2", "password2")
+u2.getUser()
 
 # Получаем прогресс обоих учеников
-u1_progress = u1.getProgerss()
-u2_progress = u2.getProgerss()
+u1_progress = u1.getProgress()
+u2_progress = u2.getProgress()
 
 
 # Получаем словари вида {предмет: место в топе}

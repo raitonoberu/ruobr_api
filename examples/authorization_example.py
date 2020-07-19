@@ -1,15 +1,16 @@
-from ruobr_api import Ruobr
+import ruobr_api
 
+user = ruobr_api.Ruobr("username", "password")
 try:
-    user = Ruobr("username", "password")  # Авторизация
-except Ruobr.AuthError:
+    user.getUser()  # Авторизация
+except ruobr_api.AuthError:
     print("Проверьте логин и/или пароль!")
     quit()
 
 if user.isApplicant:  # Обработка родительского аккаунта
     children = user.getChildren()  # Получить список детей
     if len(children) > 1:  # Не требуется, если на аккаунте только один ребёнок
-        for i in range(len(children)): # Позволить выбрать одного из детей
+        for i in range(len(children)):  # Позволить выбрать одного из детей
             first_name = children[i]['first_name']
             last_name = children[i]['last_name']
             print(i + 1, "-", first_name, last_name)

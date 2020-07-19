@@ -4,16 +4,18 @@
 
 ## Использование
 
-```
+```python
 >>> from ruobr_api import Ruobr
 >>> r = Ruobr('username', 'password')
 >>> r.getUser()
 {'status': 'child', 'first_name': 'Иванов', 'last_name': 'Иван', 'middle_name': 'Иванович', 'school': 'Школа 1', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': '9В', 'id': 9999999, 'gps_tracker': False}
 ```
+
 ## Зависимости
 
-Модуль [requests](https://github.com/psf/requests) последней версии.
+[Python](https://www.python.org/) 3.6+
 
+Модуль [httpx](https://github.com/encode/httpx) последней версии.
 
 ## Документация
 
