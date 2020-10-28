@@ -121,22 +121,9 @@ class ruobr_api.**Ruobr**(username, password)
 
 **getNews**()
 
-Возвращает новости.
+Возвращает новости. Вывод неизвестен.
 
-## AsyncRuobr (асинхронная версия)
-
-class ruobr_api.**AsyncRuobr**(username, password)
-
--   username (str) - имя пользователя
--   password (str) - пароль
-
-**Методы идентичны классу ruobr_api.Ruobr**
-
-## Вспомогательные функции
-
-### getHomeworkById
-
-ruobr_api.**getHomeworkById**(id, type="group")
+**getHomeworkById**(id, type="group")
 
 Возвращает ссылку на страницу с подробной информацией о домашнем задании. Не требует авторизации
 
@@ -147,7 +134,19 @@ ruobr_api.**getHomeworkById**(id, type="group")
 Пример вывода:
 `https://ruobr.ru/api/homework/?homework=123456&type=group`
 
+
+## AsyncRuobr (асинхронная версия)
+
+class ruobr_api.**AsyncRuobr**(username, password)
+
+-   username (str) - имя пользователя
+-   password (str) - пароль
+
+**Методы идентичны классу ruobr_api.Ruobr**
+
+
 ## Исключения
+
 
 ### AuthenticationException
 
