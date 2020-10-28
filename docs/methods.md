@@ -149,14 +149,14 @@ ruobr_api.**getHomeworkById**(id, type="group")
 
 ## Исключения
 
-### AuthError
+### AuthenticationException
 
-ruobr_api.**AuthError**
+ruobr_api.**AuthenticationException**
 
 Вызывается при неудачной аутентификации
 
-### noSuccess
+### AuthenticationException
 
-ruobr_api.**noSuccess**
+ruobr_api.**AuthenticationException**
 
 Вызывается, если сервер вернул ложный параметр success или при ошибке в расшифровке JSON

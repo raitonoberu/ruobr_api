@@ -3,7 +3,7 @@ import ruobr_api
 user = ruobr_api.Ruobr("username", "password")
 try:
     user.getUser()  # Авторизация
-except ruobr_api.AuthError:
+except ruobr_api.AuthenticationException:
     print("Проверьте логин и/или пароль!")
     quit()
 

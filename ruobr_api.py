@@ -20,12 +20,12 @@ import base64
 from datetime import datetime
 
 
-class AuthError(Exception):
+class AuthenticationException(Exception):
     def __init__(self, text):
         self.text = text
 
 
-class noSuccess(Exception):
+class NoSuccessExceptionException(Exception):
     def __init__(self, text):
         self.text = text
 
@@ -51,17 +51,19 @@ class Ruobr(object):
         try:
             response = response.json()
         except:
-            raise noSuccess(response.text)
+            raise NoSuccessException(response.text)
         if isinstance(response, dict):  # В случае ошибки возвращается словарь
             if "success" in response.keys():
                 if not (response["success"]):
                     if "error" in response.keys():
-                        raise noSuccess(response["error"])
+                        raise NoSuccessException(response["error"])
                     if "error_type" in response.keys():
                         if response["error_type"] == "auth":
-                            raise AuthError("Проверьте логин и/или пароль")
-                        raise noSuccess(response["error_type"])
-                    raise noSuccess(response)
+                            raise AuthenticationException(
+                                "Проверьте логин и/или пароль"
+                            )
+                        raise NoSuccessException(response["error_type"])
+                    raise NoSuccessException(response)
         return response
 
     def getUser(self):
@@ -221,17 +223,21 @@ class AsyncRuobr(Ruobr):
         try:
             response = response.json()
         except:
-            raise noSuccess(f"Произошла ошибка на сервере: {response.status_code}")
+            raise NoSuccessException(
+                f"Произошла ошибка на сервере: {response.status_code}"
+            )
         if isinstance(response, dict):  # В случае ошибки возвращается словарь
             if "success" in response.keys():
                 if not (response["success"]):
                     if "error" in response.keys():
-                        raise noSuccess(response["error"])
+                        raise NoSuccessException(response["error"])
                     if "error_type" in response.keys():
                         if response["error_type"] == "auth":
-                            raise AuthError("Проверьте логин и/или пароль")
-                        raise noSuccess(response["error_type"])
-                    raise noSuccess(response)
+                            raise AuthenticationException(
+                                "Проверьте логин и/или пароль"
+                            )
+                        raise NoSuccessException(response["error_type"])
+                    raise NoSuccessException(response)
         return response
 
     async def getUser(self):
@@ -380,7 +386,7 @@ class AsyncRuobr(Ruobr):
         return history["events"]
 
     async def getNews(self):
-        """ "Возвращает новости
+        """Возвращает новости
 
         (примеры отсутствуют)"""
         return await self._get("news/")
