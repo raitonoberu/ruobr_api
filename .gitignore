@@ -1,3 +1,6 @@
-
-test.py
+#cache
 *.pyc
+
+#pypi
+dist
+ruobr_api.egg-info
