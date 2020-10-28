@@ -5,11 +5,11 @@ r = Ruobr("username", "password")  # Авторизация
 r.getUser()
 controlmarks = r.getControlmarks()  # Получение итоговых оценок
 
-titles = ['Дисциплины']
+titles = ["Дисциплины"]
 subjects = []
 for period in controlmarks:
-    titles.append(period['rom'])  # Создание шапки таблицы с номерами четвертей
-    subjects.extend(list(period['marks'].keys()))  # Получение всех предметов
+    titles.append(period["rom"])  # Создание шапки таблицы с номерами четвертей
+    subjects.extend(list(period["marks"].keys()))  # Получение всех предметов
 
 # Создание словаря вида {предмет: [], ...}
 subjects = {i: [] for i in sorted(list(set(subjects)))}
@@ -17,8 +17,8 @@ subjects = {i: [] for i in sorted(list(set(subjects)))}
 # Заполнение словаря оценками
 for period in controlmarks:
     for subject in list(subjects.keys()):
-        if subject in period['marks']:
-            subjects[subject].append(period['marks'][subject])
+        if subject in period["marks"]:
+            subjects[subject].append(period["marks"][subject])
         else:
             subjects[subject].append("-")
 
@@ -32,6 +32,6 @@ for subject, marks in subjects.items():
     data.append(items)
 
 with open("output.csv", "w") as csv_file:  # Экспорт в csv
-    writer = csv.writer(csv_file, delimiter=',')
+    writer = csv.writer(csv_file, delimiter=",")
     for line in data:
         writer.writerow(line)

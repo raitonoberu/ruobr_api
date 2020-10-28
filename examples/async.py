@@ -18,6 +18,7 @@ async def asyncruobr(username, password):
     r_async = AsyncRuobr(username, password)
     await r_async.getUser()
 
+
 start = time()
 sync_users = [syncruobr(*i) for i in users]
 print("Синхронно:", round(time() - start, 2), "секунд")

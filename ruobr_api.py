@@ -35,17 +35,17 @@ class Ruobr(object):
 
     def __init__(self, username, password):
         # Логин и пароль должны быть закодированы в base64
-        self.username = base64.b64encode(
-            username.upper().encode("UTF-8")).decode("UTF-8")
-        self.password = base64.b64encode(
-            password.encode("UTF-8")).decode("UTF-8")
+        self.username = base64.b64encode(username.upper().encode("UTF-8")).decode(
+            "UTF-8"
+        )
+        self.password = base64.b64encode(password.encode("UTF-8")).decode("UTF-8")
         self.isApplicant = False  # Является ли профиль родительским
         self.child = 0  # Номер ребёнка, если профиль родительский
 
     def _get(self, target):
         """Метод для получения данных"""
         response = httpx.get(
-            f'https://ruobr.ru/api/{target}',
+            f"https://ruobr.ru/api/{target}",
             headers={"password": self.password, "username": self.username},
         )
         try:
@@ -54,14 +54,13 @@ class Ruobr(object):
             raise noSuccess(response.text)
         if isinstance(response, dict):  # В случае ошибки возвращается словарь
             if "success" in response.keys():
-                if not(response['success']):
+                if not (response["success"]):
                     if "error" in response.keys():
-                        raise noSuccess(response['error'])
+                        raise noSuccess(response["error"])
                     if "error_type" in response.keys():
-                        if response['error_type'] == "auth":
-                            raise AuthError(
-                                "Проверьте логин и/или пароль")
-                        raise noSuccess(response['error_type'])
+                        if response["error_type"] == "auth":
+                            raise AuthError("Проверьте логин и/или пароль")
+                        raise noSuccess(response["error_type"])
                     raise noSuccess(response)
         return response
 
@@ -71,9 +70,9 @@ class Ruobr(object):
 
         {'status': 'child', 'first_name': 'first_name', 'last_name': 'last_name', 'middle_name': 'middle_name', 'school': 'school', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': 'group', 'id': 9999999, 'gps_tracker': False}"""
         user = self._get("user/")
-        if user['status'] == "applicant":
+        if user["status"] == "applicant":
             self.isApplicant = True
-            user = user['childs'][self.child]
+            user = user["childs"][self.child]
         self.user = user
         return user
 
@@ -82,9 +81,9 @@ class Ruobr(object):
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
         user = self._get("user/")
-        if user['status'] == "applicant":
+        if user["status"] == "applicant":
             self.isApplicant = True
-            user = user['childs']
+            user = user["childs"]
         else:
             user = [user]
         return user
@@ -99,7 +98,7 @@ class Ruobr(object):
         """Возвращает почту
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
-        return self._get("mail/")['messages']
+        return self._get("mail/")["messages"]
 
     def readMessage(self, id):
         """Помечает сообщение как прочитанное"""
@@ -121,7 +120,9 @@ class Ruobr(object):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        return self._get(f"timetable/?start={start}&end={end}&child={self.user['id']}")['lessons']
+        return self._get(f"timetable/?start={start}&end={end}&child={self.user['id']}")[
+            "lessons"
+        ]
 
     def getHomework(self, start, end):
         """Возвращает список домашнего задания (выборка из дневника)
@@ -159,7 +160,9 @@ class Ruobr(object):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        return self._get(f"mark/?child={self.user['id']}&start={start}&end={end}")['subjects']
+        return self._get(f"mark/?child={self.user['id']}&start={start}&end={end}")[
+            "subjects"
+        ]
 
     def getAttendance(self, start, end):
         """Возвращает пропуски за указанный период
@@ -171,13 +174,15 @@ class Ruobr(object):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        return self._get(f"attendance/?child={self.user['id']}&start={start}&end={end}")['subjects']
+        return self._get(
+            f"attendance/?child={self.user['id']}&start={start}&end={end}"
+        )["subjects"]
 
     def getFoodInfo(self):
         """Возвращает информацию о счёте питания
 
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
-        return self._get(f"food/?child={self.user['id']}")['account']
+        return self._get(f"food/?child={self.user['id']}")["account"]
 
     def getFoodHistory(self, start=None, end=None):
         """Возвращает историю питания (обыычно start - первый день года, end - последний)
@@ -194,10 +199,12 @@ class Ruobr(object):
                 start = start.strftime("%Y-%m-%d")
             if isinstance(end, datetime):
                 end = end.strftime("%Y-%m-%d")
-        return self._get(f"food/history/?child={self.user['id']}&end={end}&start={start}")['events']
+        return self._get(
+            f"food/history/?child={self.user['id']}&end={end}&start={start}"
+        )["events"]
 
     def getNews(self):
-        """"Возвращает новости
+        """ "Возвращает новости
 
         (примеры отсутствуют)"""
         return self._get("news/")
@@ -208,24 +215,22 @@ class AsyncRuobr(Ruobr):
         """Метод для получения данных"""
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f'https://ruobr.ru/api/{target}',
+                f"https://ruobr.ru/api/{target}",
                 headers={"password": self.password, "username": self.username},
             )
         try:
             response = response.json()
         except:
-            raise noSuccess(
-                f"Произошла ошибка на сервере: {response.status_code}")
+            raise noSuccess(f"Произошла ошибка на сервере: {response.status_code}")
         if isinstance(response, dict):  # В случае ошибки возвращается словарь
             if "success" in response.keys():
-                if not(response['success']):
+                if not (response["success"]):
                     if "error" in response.keys():
-                        raise noSuccess(response['error'])
+                        raise noSuccess(response["error"])
                     if "error_type" in response.keys():
-                        if response['error_type'] == "auth":
-                            raise AuthError(
-                                "Проверьте логин и/или пароль")
-                        raise noSuccess(response['error_type'])
+                        if response["error_type"] == "auth":
+                            raise AuthError("Проверьте логин и/или пароль")
+                        raise noSuccess(response["error_type"])
                     raise noSuccess(response)
         return response
 
@@ -235,9 +240,9 @@ class AsyncRuobr(Ruobr):
 
         {'status': 'child', 'first_name': 'first_name', 'last_name': 'last_name', 'middle_name': 'middle_name', 'school': 'school', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': 'group', 'id': 9999999, 'gps_tracker': False}"""
         user = await self._get("user/")
-        if user['status'] == "applicant":
+        if user["status"] == "applicant":
             self.isApplicant = True
-            user = user['childs'][self.child]
+            user = user["childs"][self.child]
         self.user = user
         return user
 
@@ -246,9 +251,9 @@ class AsyncRuobr(Ruobr):
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
         user = await self._get("user/")
-        if user['status'] == "applicant":
+        if user["status"] == "applicant":
             self.isApplicant = True
-            user = user['childs']
+            user = user["childs"]
         else:
             user = [user]
         return user
@@ -264,7 +269,7 @@ class AsyncRuobr(Ruobr):
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
         mail = await self._get("mail/")
-        return mail['messages']
+        return mail["messages"]
 
     async def readMessage(self, id):
         """Помечает сообщение как прочитанное"""
@@ -286,8 +291,10 @@ class AsyncRuobr(Ruobr):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        timetable = await self._get(f"timetable/?start={start}&end={end}&child={self.user['id']}")
-        return timetable['lessons']
+        timetable = await self._get(
+            f"timetable/?start={start}&end={end}&child={self.user['id']}"
+        )
+        return timetable["lessons"]
 
     async def getHomework(self, start, end):
         """Возвращает список домашнего задания (выборка из дневника)
@@ -325,8 +332,10 @@ class AsyncRuobr(Ruobr):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        marks = await self._get(f"mark/?child={self.user['id']}&start={start}&end={end}")
-        return marks['subjects']
+        marks = await self._get(
+            f"mark/?child={self.user['id']}&start={start}&end={end}"
+        )
+        return marks["subjects"]
 
     async def getAttendance(self, start, end):
         """Возвращает пропуски за указанный период
@@ -338,15 +347,17 @@ class AsyncRuobr(Ruobr):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        attendance = await self._get(f"attendance/?child={self.user['id']}&start={start}&end={end}")
-        return attendance['subjects']
+        attendance = await self._get(
+            f"attendance/?child={self.user['id']}&start={start}&end={end}"
+        )
+        return attendance["subjects"]
 
     async def getFoodInfo(self):
         """Возвращает информацию о счёте питания
 
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
         food = await self._get(f"food/?child={self.user['id']}")
-        return food['account']
+        return food["account"]
 
     async def getFoodHistory(self, start=None, end=None):
         """Возвращает историю питания (обыычно start - первый день года, end - последний)
@@ -363,11 +374,13 @@ class AsyncRuobr(Ruobr):
                 start = start.strftime("%Y-%m-%d")
             if isinstance(end, datetime):
                 end = end.strftime("%Y-%m-%d")
-        history = await self._get(f"food/history/?child={self.user['id']}&end={end}&start={start}")
-        return history['events']
+        history = await self._get(
+            f"food/history/?child={self.user['id']}&end={end}&start={start}"
+        )
+        return history["events"]
 
     async def getNews(self):
-        """"Возвращает новости
+        """ "Возвращает новости
 
         (примеры отсутствуют)"""
         return await self._get("news/")
@@ -377,4 +390,4 @@ def getHomeworkById(id, type="group"):
     """Возвращает ссылку на страницу с подробной информацией о домашнем задании.
     Не требует авторизации"""
 
-    return f'https://ruobr.ru/api/homework/?homework={id}&type={type}'
+    return f"https://ruobr.ru/api/homework/?homework={id}&type={type}"

@@ -14,10 +14,10 @@ u2_progress = u2.getProgress()
 # Получаем словари вида {предмет: место в топе}
 u1_subjects = {}
 u2_subjects = {}
-for i in u1_progress['subjects']:
-    u1_subjects[i['subject']] = i['place']
-for i in u2_progress['subjects']:
-    u2_subjects[i['subject']] = i['place']
+for i in u1_progress["subjects"]:
+    u1_subjects[i["subject"]] = i["place"]
+for i in u2_progress["subjects"]:
+    u2_subjects[i["subject"]] = i["place"]
 
 # Сравниваем места в топе и добавляем в списки
 u1_better = []
@@ -29,7 +29,5 @@ for subject, place in u1_subjects.items():
         elif u2_subjects[subject] < place:
             u2_better.append(subject)
 
-print(u1.user['first_name'],
-      "лучше в следующих предметах:", ", ".join(u1_better))
-print(u2.user['first_name'],
-      "лучше в следующих предметах:", ", ".join(u2_better))
+print(u1.user["first_name"], "лучше в следующих предметах:", ", ".join(u1_better))
+print(u2.user["first_name"], "лучше в следующих предметах:", ", ".join(u2_better))
