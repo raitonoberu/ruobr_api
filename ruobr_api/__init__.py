@@ -24,5 +24,5 @@ from .ruobr_api import (
 )
 
 __author__ = "raitonoberu"
-__version__ = "1.0"
+__version__ = "1.0.1"
 __email__ = "raitonoberu@mail.ru"
