@@ -4,3 +4,6 @@
 #pypi
 dist
 ruobr_api.egg-info
+
+#pycharm
+.idea
