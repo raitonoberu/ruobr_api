@@ -32,6 +32,7 @@ setup(
     ),
     license="Apache License, Version 2.0, see LICENSE file",
     packages=["ruobr_api"],
+    install_requires=["httpx"],
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
