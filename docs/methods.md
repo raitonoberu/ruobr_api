@@ -121,7 +121,10 @@ class ruobr_api.**Ruobr**(username, password)
 
 **getNews**()
 
-Возвращает новости. Вывод неизвестен.
+Возвращает новости
+
+Пример вывода:
+`[{'title': 'title', 'clean_text': 'text without html tags', 'author': 'author', 'school_name': 'school num 1', 'school_id': 10, 'text': '<p>text</p>', 'date': '2020-11-03', 'pub_date': '2020-11-03 15:50:270', 'id': 100001}...]`
 
 **getHomeworkById**(id, type="group")
 

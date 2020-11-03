@@ -195,9 +195,9 @@ class Ruobr(object):
         )["events"]
 
     def getNews(self):
-        """ "Возвращает новости
+        """Возвращает новости
 
-        (примеры отсутствуют)"""
+        [{'title': 'title', 'clean_text': 'text without html tags', 'author': 'author', 'school_name': 'school num 1', 'school_id': 10, 'text': '<p>text</p>', 'date': '2020-11-03', 'pub_date': '2020-11-03 15:50:270', 'id': 100001}...]"""
         return self._get("news/")
 
     @staticmethod
@@ -384,5 +384,5 @@ class AsyncRuobr(Ruobr):
     async def getNews(self):
         """Возвращает новости
 
-        (примеры отсутствуют)"""
+        [{'title': 'title', 'clean_text': 'text without html tags', 'author': 'author', 'school_name': 'school num 1', 'school_id': 10, 'text': '<p>text</p>', 'date': '2020-11-03', 'pub_date': '2020-11-03 15:50:270', 'id': 100001}...]"""
         return await self._get("news/")
