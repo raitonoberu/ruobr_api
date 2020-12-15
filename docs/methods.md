@@ -150,8 +150,8 @@ ruobr_api.**AuthenticationException**
 
 Вызывается при неудачной аутентификации
 
-### AuthenticationException
+### NoSuccessException
 
-ruobr_api.**AuthenticationException**
+ruobr_api.**NoSuccessException**
 
 Вызывается, если сервер вернул ложный параметр success или при ошибке в расшифровке JSON
