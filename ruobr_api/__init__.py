@@ -20,7 +20,7 @@ from .ruobr_api import (
     Ruobr,
     AsyncRuobr,
     AuthenticationException,
-    NoSuccessExceptionException,
+    NoSuccessException,
 )
 
 __author__ = "raitonoberu"
