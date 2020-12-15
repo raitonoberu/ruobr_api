@@ -15,7 +15,7 @@ class AuthenticationException(Exception):
         self.text = text
 
 
-class NoSuccessExceptionException(Exception):
+class NoSuccessException(Exception):
     def __init__(self, text):
         self.text = text
 
