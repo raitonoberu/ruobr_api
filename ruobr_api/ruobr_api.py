@@ -2,7 +2,7 @@
 """
 :authors: raitonoberu
 :license: Apache License, Version 2.0, see LICENSE file
-:copyright: (c) 2020 raitonoberu
+:copyright: (c) 2021 raitonoberu
 """
 import httpx
 import base64
