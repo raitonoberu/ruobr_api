@@ -29,8 +29,15 @@ class Ruobr(object):
             "UTF-8"
         )
         self.password = base64.b64encode(password.encode("UTF-8")).decode("UTF-8")
-        self.isApplicant = False  # Является ли профиль родительским
+        self.isApplicant = None  # Является ли профиль родительским
         self.child = 0  # Номер ребёнка, если профиль родительский
+        self._children = None
+
+    @property
+    def user(self):
+        if self._children is not None:
+            return self._children[self.child]
+        return None
 
     def _get(self, target: str) -> dict:
         """Метод для получения данных"""
@@ -65,29 +72,24 @@ class Ruobr(object):
         user = self._get("user/")
         if user["status"] == "applicant":
             self.isApplicant = True
-            user = user["childs"][self.child]
-        self.user = user
-        return user
+            self._children = user["childs"]
+        else:
+            self.isApplicant = False
+            self._children = [user]
+        return self.user
 
     def getChildren(self) -> list:
         """Возвращает список детей текущего аккаунта (для обработки родительских профилей)
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
-
-        user = self._get("user/")
-        if user["status"] == "applicant":
-            self.isApplicant = True
-            user = user["childs"]
-        else:
-            user = [user]
-        return user
+        if self._children is None:
+            self.getUser()
+        return self._children
 
     def setChild(self, id: int) -> None:
         """Установить номер ребёнка, если профиль родительский"""
 
-        if self.child != id:
-            self.child = id
-            self.getUser()
+        self.child = id
 
     def getMail(self) -> list:
         """Возвращает почту
