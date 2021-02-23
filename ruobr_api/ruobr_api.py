@@ -82,6 +82,7 @@ class Ruobr(object):
         """Возвращает список детей текущего аккаунта (для обработки родительских профилей)
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
+
         if self._children is None:
             self.getUser()
         return self._children
@@ -110,7 +111,9 @@ class Ruobr(object):
 
         return self._get(f"controlmark/?child={self.user['id']}")
 
-    def getTimetable(self, start: Union[str, datetime], end: Union[str, datetime]) -> list:
+    def getTimetable(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> list:
         """Возвращает дневник целиком
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -125,7 +128,9 @@ class Ruobr(object):
             "lessons"
         ]
 
-    def getHomework(self, start: Union[str, datetime], end: Union[str, datetime]) -> list:
+    def getHomework(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> list:
         """Возвращает список домашнего задания (выборка из дневника)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -166,7 +171,9 @@ class Ruobr(object):
             "subjects"
         ]
 
-    def getAttendance(self, start: Union[str, datetime], end: Union[str, datetime]) -> dict:
+    def getAttendance(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> dict:
         """Возвращает пропуски за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -188,7 +195,9 @@ class Ruobr(object):
 
         return self._get(f"food/?child={self.user['id']}")["account"]
 
-    def getFoodHistory(self, start: Union[str, datetime], end: Union[str, datetime]) -> list:
+    def getFoodHistory(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> list:
         """Возвращает историю питания (обычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -256,29 +265,25 @@ class AsyncRuobr(Ruobr):
         user = await self._get("user/")
         if user["status"] == "applicant":
             self.isApplicant = True
-            user = user["childs"][self.child]
-        self.user = user
-        return user
+            self._children = user["childs"]
+        else:
+            self.isApplicant = False
+            self._children = [user]
+        return self.user
 
     async def getChildren(self) -> list:
         """Возвращает список детей текущего аккаунта (для обработки родительских профилей)
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
 
-        user = await self._get("user/")
-        if user["status"] == "applicant":
-            self.isApplicant = True
-            user = user["childs"]
-        else:
-            user = [user]
-        return user
+        if self._children is None:
+            await self.getUser()
+        return self._children
 
     async def setChild(self, id: int) -> None:
         """Установить номер ребёнка, если профиль родительский"""
 
-        if self.child != id:
-            self.child = id
-            await self.getUser()
+        self.child = id
 
     async def getMail(self) -> list:
         """Возвращает почту
@@ -300,7 +305,9 @@ class AsyncRuobr(Ruobr):
 
         return await self._get(f"controlmark/?child={self.user['id']}")
 
-    async def getTimetable(self, start: Union[str, datetime], end: Union[str, datetime]) -> list:
+    async def getTimetable(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> list:
         """Возвращает дневник целиком
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -316,7 +323,9 @@ class AsyncRuobr(Ruobr):
         )
         return timetable["lessons"]
 
-    async def getHomework(self, start: Union[str, datetime], end: Union[str, datetime]) -> list:
+    async def getHomework(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> list:
         """Возвращает список домашнего задания (выборка из дневника)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -342,7 +351,9 @@ class AsyncRuobr(Ruobr):
             date = date.strftime("%Y-%m-%d")
         return await self._get(f"progress/?child={self.user['id']}&date={date}")
 
-    async def getMarks(self, start: Union[str, datetime], end: Union[str, datetime]) -> dict:
+    async def getMarks(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> dict:
         """Возвращает оценки за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -358,7 +369,9 @@ class AsyncRuobr(Ruobr):
         )
         return marks["subjects"]
 
-    async def getAttendance(self, start: Union[str, datetime], end: Union[str, datetime]) -> dict:
+    async def getAttendance(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> dict:
         """Возвращает пропуски за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -382,7 +395,9 @@ class AsyncRuobr(Ruobr):
         food = await self._get(f"food/?child={self.user['id']}")
         return food["account"]
 
-    async def getFoodHistory(self, start: Union[str, datetime], end: Union[str, datetime]) -> list:
+    async def getFoodHistory(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> list:
         """Возвращает историю питания (обычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
