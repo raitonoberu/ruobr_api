@@ -4,10 +4,11 @@
 :license: Apache License, Version 2.0, see LICENSE file
 :copyright: (c) 2021 raitonoberu
 """
+from . import models
 import httpx
 import base64
 from datetime import datetime
-from typing import Union
+from typing import Dict, List, Union
 
 
 class AuthenticationException(Exception):
@@ -64,21 +65,30 @@ class Ruobr(object):
                     raise NoSuccessException(response)
         return response
 
-    def getUser(self) -> dict:
+    def getUser(self) -> models.User:
         """Авторизует и возвращает информацию об ученике
 
         {'status': 'child', 'first_name': 'first_name', 'last_name': 'last_name', 'middle_name': 'middle_name', 'school': 'school', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': 'group', 'id': 9999999, 'gps_tracker': False}"""
 
+        if self.user is not None:
+            return self.user
+
         user = self._get("user/")
         if user["status"] == "applicant":
             self.isApplicant = True
-            self._children = user["childs"]
+            self._children = []
+            for child in user["childs"]:
+                self._children.append(
+                    models.User(
+                        **child, status="applicant", gps_tracker=user["gps_tracker"]
+                    )
+                )
         else:
             self.isApplicant = False
-            self._children = [user]
+            self._children = [models.User(**user)]
         return self.user
 
-    def getChildren(self) -> list:
+    def getChildren(self) -> List[models.User]:
         """Возвращает список детей текущего аккаунта (для обработки родительских профилей)
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
@@ -92,28 +102,31 @@ class Ruobr(object):
 
         self.child = id
 
-    def getMail(self) -> list:
+    def getMail(self) -> List[models.Letter]:
         """Возвращает почту
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
 
-        return self._get("mail/")["messages"]
+        return [models.Letter(**i) for i in self._get("mail/")["messages"]]
 
     def readMessage(self, id: Union[int, str]) -> None:
         """Помечает сообщение как прочитанное"""
 
         self._get(f"mail/read/?message={id}")
 
-    def getControlmarks(self) -> list:
+    def getControlmarks(self) -> List[models.ControlmarksPeriod]:
         """Возвращает итоговые оценки
 
         [{'marks': {'Subject': 'Mark', ...}, 'rom': 'I', 'period': 1, 'title': '1-я четверть'}, ...]"""
 
-        return self._get(f"controlmark/?child={self.user['id']}")
+        return [
+            models.ControlmarksPeriod(**i)
+            for i in self._get(f"controlmark/?child={self.user['id']}")
+        ]
 
     def getTimetable(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> list:
+    ) -> List[models.Lesson]:
         """Возвращает дневник целиком
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -124,13 +137,16 @@ class Ruobr(object):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        return self._get(f"timetable/?start={start}&end={end}&child={self.user['id']}")[
-            "lessons"
+        return [
+            models.Lesson(**i)
+            for i in self._get(
+                f"timetable/?start={start}&end={end}&child={self.user['id']}"
+            )["lessons"]
         ]
 
     def getHomework(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> list:
+    ) -> List[models.Lesson]:
         """Возвращает список домашнего задания (выборка из дневника)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -139,13 +155,13 @@ class Ruobr(object):
 
         timetable = self.getTimetable(start, end)
         homework = []
-        for lesssion in timetable:
-            if "task" in lesssion.keys():
-                homework.append(lesssion)
+        for lesson in timetable:
+            if lesson.task is not None:
+                homework.append(lesson)
 
         return homework
 
-    def getProgress(self, date: Union[str, datetime]) -> dict:
+    def getProgress(self, date: Union[str, datetime]) -> models.Progress:
         """Возвращает статистику ученика (дата - обычно сегодня)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -154,9 +170,13 @@ class Ruobr(object):
 
         if isinstance(date, datetime):
             date = date.strftime("%Y-%m-%d")
-        return self._get(f"progress/?child={self.user['id']}&date={date}")
+        return models.Progress(
+            **self._get(f"progress/?child={self.user['id']}&date={date}")
+        )
 
-    def getMarks(self, start: Union[str, datetime], end: Union[str, datetime]) -> dict:
+    def getMarks(
+        self, start: Union[str, datetime], end: Union[str, datetime]
+    ) -> Dict[str, List[models.Mark]]:
         """Возвращает оценки за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -167,13 +187,16 @@ class Ruobr(object):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        return self._get(f"mark/?child={self.user['id']}&start={start}&end={end}")[
+        marks = self._get(f"mark/?child={self.user['id']}&start={start}&end={end}")[
             "subjects"
         ]
+        for key, value in marks.items():
+            marks[key] = [models.Mark(**i) for i in value]
+        return marks
 
     def getAttendance(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> dict:
+    ) -> Dict[str, List[str]]:
         """Возвращает пропуски за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -188,16 +211,16 @@ class Ruobr(object):
             f"attendance/?child={self.user['id']}&start={start}&end={end}"
         )["subjects"]
 
-    def getFoodInfo(self) -> dict:
+    def getFoodInfo(self) -> models.FoodInfo:
         """Возвращает информацию о счёте питания
 
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
 
-        return self._get(f"food/?child={self.user['id']}")["account"]
+        return models.FoodInfo(**self._get(f"food/?child={self.user['id']}")["account"])
 
     def getFoodHistory(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> list:
+    ) -> List[models.FoodHistoryDay]:
         """Возвращает историю питания (обычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -208,16 +231,19 @@ class Ruobr(object):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        return self._get(
-            f"food/history/?child={self.user['id']}&end={end}&start={start}"
-        )["events"]
+        return [
+            models.FoodHistoryDay(**i)
+            for i in self._get(
+                f"food/history/?child={self.user['id']}&end={end}&start={start}"
+            )["events"]
+        ]
 
-    def getNews(self) -> list:
+    def getNews(self) -> List[models.NewsItem]:
         """Возвращает новости
 
         [{'title': 'title', 'clean_text': 'text without html tags', 'author': 'author', 'school_name': 'school num 1', 'school_id': 10, 'text': '<p>text</p>', 'date': '2020-11-03', 'pub_date': '2020-11-03 15:50:270', 'id': 100001}...]"""
 
-        return self._get("news/")
+        return [models.NewsItem(**i) for i in self._get("news/")]
 
     @staticmethod
     def getHomeworkById(id: Union[int, str], type="group") -> str:
@@ -256,22 +282,31 @@ class AsyncRuobr(Ruobr):
                     raise NoSuccessException(response)
         return response
 
-    async def getUser(self) -> dict:
+    async def getUser(self) -> models.User:
         """Возвращает информацию об ученике
         Если профиль родительский, используйте метод setChild() для выбора ребёнка
 
         {'status': 'child', 'first_name': 'first_name', 'last_name': 'last_name', 'middle_name': 'middle_name', 'school': 'school', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': 'group', 'id': 9999999, 'gps_tracker': False}"""
 
+        if self.user is not None:
+            return self.user
+
         user = await self._get("user/")
         if user["status"] == "applicant":
             self.isApplicant = True
-            self._children = user["childs"]
+            self._children = []
+            for child in user["childs"]:
+                self._children.append(
+                    models.User(
+                        **child, status="applicant", gps_tracker=user["gps_tracker"]
+                    )
+                )
         else:
             self.isApplicant = False
-            self._children = [user]
+            self._children = [models.User(**user)]
         return self.user
 
-    async def getChildren(self) -> list:
+    async def getChildren(self) -> List[models.User]:
         """Возвращает список детей текущего аккаунта (для обработки родительских профилей)
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
@@ -285,29 +320,32 @@ class AsyncRuobr(Ruobr):
 
         self.child = id
 
-    async def getMail(self) -> list:
+    async def getMail(self) -> List[models.Letter]:
         """Возвращает почту
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
 
         mail = await self._get("mail/")
-        return mail["messages"]
+        return [models.Letter(**i) for i in mail["messages"]]
 
     async def readMessage(self, id: Union[int, str]) -> None:
         """Помечает сообщение как прочитанное"""
 
         await self._get(f"mail/read/?message={id}")
 
-    async def getControlmarks(self) -> list:
+    async def getControlmarks(self) -> List[models.ControlmarksPeriod]:
         """Возвращает итоговые оценки
 
         [{'marks': {'Subject': 'Mark', ...}, 'rom': 'I', 'period': 1, 'title': '1-я четверть'}, ...]"""
 
-        return await self._get(f"controlmark/?child={self.user['id']}")
+        return [
+            models.ControlmarksPeriod(**i)
+            for i in await self._get(f"controlmark/?child={self.user['id']}")
+        ]
 
     async def getTimetable(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> list:
+    ) -> List[models.Lesson]:
         """Возвращает дневник целиком
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -321,11 +359,11 @@ class AsyncRuobr(Ruobr):
         timetable = await self._get(
             f"timetable/?start={start}&end={end}&child={self.user['id']}"
         )
-        return timetable["lessons"]
+        return [models.Lesson(**i) for i in timetable["lessons"]]
 
     async def getHomework(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> list:
+    ) -> List[models.Lesson]:
         """Возвращает список домашнего задания (выборка из дневника)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -334,13 +372,13 @@ class AsyncRuobr(Ruobr):
 
         timetable = await self.getTimetable(start, end)
         homework = []
-        for lesssion in timetable:
-            if "task" in lesssion.keys():
-                homework.append(lesssion)
+        for lesson in timetable:
+            if lesson.task is not None:
+                homework.append(lesson)
 
         return homework
 
-    async def getProgress(self, date: Union[str, datetime]) -> dict:
+    async def getProgress(self, date: Union[str, datetime]) -> models.Progress:
         """Возвращает статистику ученика (дата - обычно сегодня)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -349,11 +387,13 @@ class AsyncRuobr(Ruobr):
 
         if isinstance(date, datetime):
             date = date.strftime("%Y-%m-%d")
-        return await self._get(f"progress/?child={self.user['id']}&date={date}")
+        return models.Progress(
+            **await self._get(f"progress/?child={self.user['id']}&date={date}")
+        )
 
     async def getMarks(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> dict:
+    ) -> Dict[str, List[models.Mark]]:
         """Возвращает оценки за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -364,14 +404,16 @@ class AsyncRuobr(Ruobr):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
             end = end.strftime("%Y-%m-%d")
-        marks = await self._get(
-            f"mark/?child={self.user['id']}&start={start}&end={end}"
-        )
-        return marks["subjects"]
+        marks = (
+            await self._get(f"mark/?child={self.user['id']}&start={start}&end={end}")
+        )["subjects"]
+        for key, value in marks.items():
+            marks[key] = [models.Mark(**i) for i in value]
+        return marks
 
     async def getAttendance(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> dict:
+    ) -> Dict[str, List[str]]:
         """Возвращает пропуски за указанный период
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -387,17 +429,17 @@ class AsyncRuobr(Ruobr):
         )
         return attendance["subjects"]
 
-    async def getFoodInfo(self) -> dict:
+    async def getFoodInfo(self) -> models.FoodInfo:
         """Возвращает информацию о счёте питания
 
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
 
         food = await self._get(f"food/?child={self.user['id']}")
-        return food["account"]
+        return models.FoodInfo(**food["account"])
 
     async def getFoodHistory(
         self, start: Union[str, datetime], end: Union[str, datetime]
-    ) -> list:
+    ) -> List[models.FoodHistoryDay]:
         """Возвращает историю питания (обычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
         (дата также может быть объектом datetime.datetime)
@@ -411,11 +453,11 @@ class AsyncRuobr(Ruobr):
         history = await self._get(
             f"food/history/?child={self.user['id']}&end={end}&start={start}"
         )
-        return history["events"]
+        return [models.FoodHistoryDay(**i) for i in history["events"]]
 
-    async def getNews(self) -> list:
+    async def getNews(self) -> List[models.NewsItem]:
         """Возвращает новости
 
         [{'title': 'title', 'clean_text': 'text without html tags', 'author': 'author', 'school_name': 'school num 1', 'school_id': 10, 'text': '<p>text</p>', 'date': '2020-11-03', 'pub_date': '2020-11-03 15:50:270', 'id': 100001}...]"""
 
-        return await self._get("news/")
+        return [models.NewsItem(**i) for i in await self._get("news/")]
