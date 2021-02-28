@@ -29,7 +29,7 @@ class User(SubscriptableBaseModel):
     gps_tracker: bool
 
 
-class Letter(SubscriptableBaseModel):
+class Message(SubscriptableBaseModel):
     id: int
     post_date: datetime
     author: str

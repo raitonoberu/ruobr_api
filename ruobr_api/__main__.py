@@ -135,7 +135,7 @@ class Ruobr(object):
 
         self.child = id
 
-    def getMail(self) -> List[Union[models.Letter, dict]]:
+    def getMail(self) -> List[Union[models.Message, dict]]:
         """Возвращает почту
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
@@ -145,7 +145,7 @@ class Ruobr(object):
         result = self._get("mail/")["messages"]
         if self.raw_data:
             return result
-        return [models.Letter(**i) for i in result]
+        return [models.Message(**i) for i in result]
 
     def readMessage(self, id: Union[int, str]) -> None:
         """Помечает сообщение как прочитанное"""
@@ -402,7 +402,7 @@ class AsyncRuobr(Ruobr):
 
         self.child = id
 
-    async def getMail(self) -> List[Union[models.Letter, dict]]:
+    async def getMail(self) -> List[Union[models.Message, dict]]:
         """Возвращает почту
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
@@ -412,7 +412,7 @@ class AsyncRuobr(Ruobr):
         result = (await self._get("mail/"))["messages"]
         if self.raw_data:
             return result
-        return [models.Letter(**i) for i in result]
+        return [models.Message(**i) for i in result]
 
     async def readMessage(self, id: Union[int, str]) -> None:
         """Помечает сообщение как прочитанное"""
