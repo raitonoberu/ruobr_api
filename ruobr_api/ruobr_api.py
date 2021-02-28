@@ -11,12 +11,22 @@ from datetime import datetime
 from typing import Dict, List, Union
 
 
+class NotAuthorizedException(Exception):
+    def __init__(self, text):
+        self.text = text
+
+
 class AuthenticationException(Exception):
     def __init__(self, text):
         self.text = text
 
 
 class NoSuccessException(Exception):
+    def __init__(self, text):
+        self.text = text
+
+
+class NoChildrenException(Exception):
     def __init__(self, text):
         self.text = text
 
@@ -34,9 +44,17 @@ class Ruobr(object):
         self.child = 0  # Номер ребёнка, если профиль родительский
         self._children = None
 
+    def _check_authorized(self):
+        if self._children is None:
+            raise NotAuthorizedException("Вы не вошли в аккаунт")
+
+    def _check_children(self):
+        if len(self._children) == 0:
+            raise NoChildrenException("На аккаунте нет детей")
+
     @property
-    def user(self):
-        if self._children is not None:
+    def user(self) -> models.User:
+        if self._children is not None and len(self._children) > 0:
             return self._children[self.child]
         return None
 
@@ -86,6 +104,7 @@ class Ruobr(object):
         else:
             self.isApplicant = False
             self._children = [models.User(**user)]
+
         return self.user
 
     def getChildren(self) -> List[models.User]:
@@ -107,10 +126,14 @@ class Ruobr(object):
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
 
+        self._check_authorized()
+
         return [models.Letter(**i) for i in self._get("mail/")["messages"]]
 
     def readMessage(self, id: Union[int, str]) -> None:
         """Помечает сообщение как прочитанное"""
+
+        self._check_authorized()
 
         self._get(f"mail/read/?message={id}")
 
@@ -118,6 +141,9 @@ class Ruobr(object):
         """Возвращает итоговые оценки
 
         [{'marks': {'Subject': 'Mark', ...}, 'rom': 'I', 'period': 1, 'title': '1-я четверть'}, ...]"""
+
+        self._check_authorized()
+        self._check_children()
 
         return [
             models.ControlmarksPeriod(**i)
@@ -132,6 +158,9 @@ class Ruobr(object):
         (дата также может быть объектом datetime.datetime)
 
         [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teachers Name'}, ...]"""
+
+        self._check_authorized()
+        self._check_children()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -168,6 +197,9 @@ class Ruobr(object):
 
         {'period_name': '4-я четверть', 'place_count': 23, 'subjects': [{'place_count': 17, 'place': 3, 'group_avg': 3.69, 'child_avg': 4.29, 'parallels_avg': 3.56, 'subject': 'Русский язык'}, ...], 'place': 7, 'group_avg': 4.05, 'child_avg': 4.28, 'parallels_avg': 3.84}"""
 
+        self._check_authorized()
+        self._check_children()
+
         if isinstance(date, datetime):
             date = date.strftime("%Y-%m-%d")
         return models.Progress(
@@ -182,6 +214,9 @@ class Ruobr(object):
         (дата также может быть объектом datetime.datetime)
 
         {'Русский язык': [{'question_name': 'Ответ на уроке', 'question_id': 104552170, 'number': 1, 'question_type': 'Ответ на уроке', 'mark': '4'}, ...], ...}"""
+
+        self._check_authorized()
+        self._check_children()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -203,6 +238,9 @@ class Ruobr(object):
 
         {'Русский язык': ['УП', 'Н', ...], ...}"""
 
+        self._check_authorized()
+        self._check_children()
+
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
@@ -216,6 +254,9 @@ class Ruobr(object):
 
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
 
+        self._check_authorized()
+        self._check_children()
+
         return models.FoodInfo(**self._get(f"food/?child={self.user['id']}")["account"])
 
     def getFoodHistory(
@@ -226,6 +267,9 @@ class Ruobr(object):
         (дата также может быть объектом datetime.datetime)
 
         [{'date': '2020-01-13', 'state': 30, 'complex__code': 'А', 'complex__uid': 'dacd83e5-2dd6-11e8-a63a-00155d039800', 'state_str': 'Заказ подтверждён', 'complex__name': 'Альтернативно-молочный', 'id': 63217607}, ...]"""
+
+        self._check_authorized()
+        self._check_children()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -242,6 +286,8 @@ class Ruobr(object):
         """Возвращает новости
 
         [{'title': 'title', 'clean_text': 'text without html tags', 'author': 'author', 'school_name': 'school num 1', 'school_id': 10, 'text': '<p>text</p>', 'date': '2020-11-03', 'pub_date': '2020-11-03 15:50:270', 'id': 100001}...]"""
+
+        self._check_authorized()
 
         return [models.NewsItem(**i) for i in self._get("news/")]
 
@@ -304,6 +350,7 @@ class AsyncRuobr(Ruobr):
         else:
             self.isApplicant = False
             self._children = [models.User(**user)]
+
         return self.user
 
     async def getChildren(self) -> List[models.User]:
@@ -325,11 +372,16 @@ class AsyncRuobr(Ruobr):
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
 
+        self._check_authorized()
+
         mail = await self._get("mail/")
         return [models.Letter(**i) for i in mail["messages"]]
 
     async def readMessage(self, id: Union[int, str]) -> None:
         """Помечает сообщение как прочитанное"""
+
+        self._check_authorized()
+        self._check_children()
 
         await self._get(f"mail/read/?message={id}")
 
@@ -337,6 +389,9 @@ class AsyncRuobr(Ruobr):
         """Возвращает итоговые оценки
 
         [{'marks': {'Subject': 'Mark', ...}, 'rom': 'I', 'period': 1, 'title': '1-я четверть'}, ...]"""
+
+        self._check_authorized()
+        self._check_children()
 
         return [
             models.ControlmarksPeriod(**i)
@@ -351,6 +406,9 @@ class AsyncRuobr(Ruobr):
         (дата также может быть объектом datetime.datetime)
 
         [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teachers Name'}, ...]"""
+
+        self._check_authorized()
+        self._check_children()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -385,6 +443,9 @@ class AsyncRuobr(Ruobr):
 
         {'period_name': '4-я четверть', 'place_count': 23, 'subjects': [{'place_count': 17, 'place': 3, 'group_avg': 3.69, 'child_avg': 4.29, 'parallels_avg': 3.56, 'subject': 'Русский язык'}, ...], 'place': 7, 'group_avg': 4.05, 'child_avg': 4.28, 'parallels_avg': 3.84}"""
 
+        self._check_authorized()
+        self._check_children()
+
         if isinstance(date, datetime):
             date = date.strftime("%Y-%m-%d")
         return models.Progress(
@@ -399,6 +460,9 @@ class AsyncRuobr(Ruobr):
         (дата также может быть объектом datetime.datetime)
 
         {'Русский язык': [{'question_name': 'Ответ на уроке', 'question_id': 104552170, 'number': 1, 'question_type': 'Ответ на уроке', 'mark': '4'}, ...], ...}"""
+
+        self._check_authorized()
+        self._check_children()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -420,6 +484,9 @@ class AsyncRuobr(Ruobr):
 
         {'Русский язык': ['УП', 'Н', ...], ...}"""
 
+        self._check_authorized()
+        self._check_children()
+
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
         if isinstance(end, datetime):
@@ -434,6 +501,9 @@ class AsyncRuobr(Ruobr):
 
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
 
+        self._check_authorized()
+        self._check_children()
+
         food = await self._get(f"food/?child={self.user['id']}")
         return models.FoodInfo(**food["account"])
 
@@ -445,6 +515,9 @@ class AsyncRuobr(Ruobr):
         (дата также может быть объектом datetime.datetime)
 
         [{'date': '2020-01-13', 'state': 30, 'complex__code': 'А', 'complex__uid': 'dacd83e5-2dd6-11e8-a63a-00155d039800', 'state_str': 'Заказ подтверждён', 'complex__name': 'Альтернативно-молочный', 'id': 63217607}, ...]"""
+
+        self._check_authorized()
+        self._check_children()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -459,5 +532,7 @@ class AsyncRuobr(Ruobr):
         """Возвращает новости
 
         [{'title': 'title', 'clean_text': 'text without html tags', 'author': 'author', 'school_name': 'school num 1', 'school_id': 10, 'text': '<p>text</p>', 'date': '2020-11-03', 'pub_date': '2020-11-03 15:50:270', 'id': 100001}...]"""
+
+        self._check_authorized()
 
         return [models.NewsItem(**i) for i in await self._get("news/")]

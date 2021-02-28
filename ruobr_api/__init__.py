@@ -19,8 +19,10 @@ ruobr.ru/api
 from .ruobr_api import (
     Ruobr,
     AsyncRuobr,
+    NotAuthorizedException,
     AuthenticationException,
     NoSuccessException,
+    NoChildrenException,
 )
 
 __author__ = "raitonoberu"
