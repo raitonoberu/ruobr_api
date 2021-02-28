@@ -16,7 +16,7 @@ ruobr.ru/api
 :copyright: (c) 2021 raitonoberu
 """
 
-from .ruobr_api import (
+from .__main__ import (
     Ruobr,
     AsyncRuobr,
     NotAuthorizedException,
