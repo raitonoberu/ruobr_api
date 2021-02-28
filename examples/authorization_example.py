@@ -7,6 +7,10 @@ except ruobr_api.AuthenticationException:
     print("Проверьте логин и/или пароль!")
     quit()
 
+if user.isEmpty:
+    print("На аккаунте не обнаружено детей")
+    quit()
+
 if user.isApplicant:  # Обработка родительского аккаунта
     children = user.getChildren()  # Получить список детей
     if len(children) > 1:  # Не требуется, если на аккаунте только один ребёнок

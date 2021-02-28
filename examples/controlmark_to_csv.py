@@ -31,7 +31,7 @@ for subject, marks in subjects.items():
         items.append(i)
     data.append(items)
 
-with open("output.csv", "w") as csv_file:  # Экспорт в csv
+with open("output.csv", "w", encoding="UTF-8") as csv_file:  # Экспорт в csv
     writer = csv.writer(csv_file, delimiter=",")
     for line in data:
         writer.writerow(line)
