@@ -41,20 +41,22 @@ class Ruobr(object):
         )
         self.password = base64.b64encode(password.encode("UTF-8")).decode("UTF-8")
         self.isApplicant = None  # Является ли профиль родительским
+        self.isAuthorized = False  # Авторизован ли профиль
+        self.isEmpty = None  # Является ли профиль пустым (без детей)
         self.child = 0  # Номер ребёнка, если профиль родительский
         self._children = None
 
     def _check_authorized(self):
-        if self._children is None:
+        if not self.isAuthorized:
             raise NotAuthorizedException("Вы не вошли в аккаунт")
 
-    def _check_children(self):
-        if len(self._children) == 0:
+    def _check_empty(self):
+        if self.isEmpty:
             raise NoChildrenException("На аккаунте нет детей")
 
     @property
     def user(self) -> models.User:
-        if self._children is not None and len(self._children) > 0:
+        if self.isAuthorized and not self.isEmpty:
             return self._children[self.child]
         return None
 
@@ -104,6 +106,8 @@ class Ruobr(object):
         else:
             self.isApplicant = False
             self._children = [models.User(**user)]
+        self.isAuthorized = True
+        self.isEmpty = len(self._children) == 0
 
         return self.user
 
@@ -112,7 +116,7 @@ class Ruobr(object):
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
 
-        if self._children is None:
+        if not self.isAuthorized:
             self.getUser()
         return self._children
 
@@ -143,7 +147,7 @@ class Ruobr(object):
         [{'marks': {'Subject': 'Mark', ...}, 'rom': 'I', 'period': 1, 'title': '1-я четверть'}, ...]"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         return [
             models.ControlmarksPeriod(**i)
@@ -160,7 +164,7 @@ class Ruobr(object):
         [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teachers Name'}, ...]"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -183,10 +187,7 @@ class Ruobr(object):
         [{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
 
         timetable = self.getTimetable(start, end)
-        homework = []
-        for lesson in timetable:
-            if lesson.task is not None:
-                homework.append(lesson)
+        homework = [i for i in timetable if i.task is not None]
 
         return homework
 
@@ -198,7 +199,7 @@ class Ruobr(object):
         {'period_name': '4-я четверть', 'place_count': 23, 'subjects': [{'place_count': 17, 'place': 3, 'group_avg': 3.69, 'child_avg': 4.29, 'parallels_avg': 3.56, 'subject': 'Русский язык'}, ...], 'place': 7, 'group_avg': 4.05, 'child_avg': 4.28, 'parallels_avg': 3.84}"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(date, datetime):
             date = date.strftime("%Y-%m-%d")
@@ -216,7 +217,7 @@ class Ruobr(object):
         {'Русский язык': [{'question_name': 'Ответ на уроке', 'question_id': 104552170, 'number': 1, 'question_type': 'Ответ на уроке', 'mark': '4'}, ...], ...}"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -239,7 +240,7 @@ class Ruobr(object):
         {'Русский язык': ['УП', 'Н', ...], ...}"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -255,7 +256,7 @@ class Ruobr(object):
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         return models.FoodInfo(**self._get(f"food/?child={self.user['id']}")["account"])
 
@@ -269,7 +270,7 @@ class Ruobr(object):
         [{'date': '2020-01-13', 'state': 30, 'complex__code': 'А', 'complex__uid': 'dacd83e5-2dd6-11e8-a63a-00155d039800', 'state_str': 'Заказ подтверждён', 'complex__name': 'Альтернативно-молочный', 'id': 63217607}, ...]"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -350,6 +351,8 @@ class AsyncRuobr(Ruobr):
         else:
             self.isApplicant = False
             self._children = [models.User(**user)]
+        self.isAuthorized = True
+        self.isEmpty = len(self._children) == 0
 
         return self.user
 
@@ -358,7 +361,7 @@ class AsyncRuobr(Ruobr):
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
 
-        if self._children is None:
+        if not self.isAuthorized:
             await self.getUser()
         return self._children
 
@@ -381,7 +384,7 @@ class AsyncRuobr(Ruobr):
         """Помечает сообщение как прочитанное"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         await self._get(f"mail/read/?message={id}")
 
@@ -391,7 +394,7 @@ class AsyncRuobr(Ruobr):
         [{'marks': {'Subject': 'Mark', ...}, 'rom': 'I', 'period': 1, 'title': '1-я четверть'}, ...]"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         return [
             models.ControlmarksPeriod(**i)
@@ -408,7 +411,7 @@ class AsyncRuobr(Ruobr):
         [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teachers Name'}, ...]"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -429,10 +432,7 @@ class AsyncRuobr(Ruobr):
         [{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
 
         timetable = await self.getTimetable(start, end)
-        homework = []
-        for lesson in timetable:
-            if lesson.task is not None:
-                homework.append(lesson)
+        homework = [i for i in timetable if i.task is not None]
 
         return homework
 
@@ -444,7 +444,7 @@ class AsyncRuobr(Ruobr):
         {'period_name': '4-я четверть', 'place_count': 23, 'subjects': [{'place_count': 17, 'place': 3, 'group_avg': 3.69, 'child_avg': 4.29, 'parallels_avg': 3.56, 'subject': 'Русский язык'}, ...], 'place': 7, 'group_avg': 4.05, 'child_avg': 4.28, 'parallels_avg': 3.84}"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(date, datetime):
             date = date.strftime("%Y-%m-%d")
@@ -462,7 +462,7 @@ class AsyncRuobr(Ruobr):
         {'Русский язык': [{'question_name': 'Ответ на уроке', 'question_id': 104552170, 'number': 1, 'question_type': 'Ответ на уроке', 'mark': '4'}, ...], ...}"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -485,7 +485,7 @@ class AsyncRuobr(Ruobr):
         {'Русский язык': ['УП', 'Н', ...], ...}"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
@@ -502,7 +502,7 @@ class AsyncRuobr(Ruobr):
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         food = await self._get(f"food/?child={self.user['id']}")
         return models.FoodInfo(**food["account"])
@@ -517,7 +517,7 @@ class AsyncRuobr(Ruobr):
         [{'date': '2020-01-13', 'state': 30, 'complex__code': 'А', 'complex__uid': 'dacd83e5-2dd6-11e8-a63a-00155d039800', 'state_str': 'Заказ подтверждён', 'complex__name': 'Альтернативно-молочный', 'id': 63217607}, ...]"""
 
         self._check_authorized()
-        self._check_children()
+        self._check_empty()
 
         if isinstance(start, datetime):
             start = start.strftime("%Y-%m-%d")
