@@ -7,7 +7,7 @@
 from . import models
 import httpx
 import base64
-from datetime import datetime
+from datetime import datetime, date
 from typing import Dict, List, Union
 
 
@@ -168,20 +168,19 @@ class Ruobr(object):
         return [models.ControlmarksPeriod(**i) for i in result]
 
     def getTimetable(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> List[Union[models.Lesson, dict]]:
         """Возвращает дневник целиком
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teachers Name'}, ...]"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(start, datetime):
+        if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
-        if isinstance(end, datetime):
+        if isinstance(end, (date, datetime)):
             end = end.strftime("%Y-%m-%d")
 
         result = self._get(
@@ -192,11 +191,10 @@ class Ruobr(object):
         return [models.Lesson(**i) for i in result]
 
     def getHomework(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> List[Union[models.Lesson, dict]]:
         """Возвращает список домашнего задания (выборка из дневника)
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         [{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
 
@@ -205,39 +203,39 @@ class Ruobr(object):
 
         return homework
 
-    def getProgress(self, date: Union[str, datetime]) -> Union[models.Progress, dict]:
+    def getProgress(
+        self, _date: Union[str, date, datetime]
+    ) -> Union[models.Progress, dict]:
         """Возвращает статистику ученика (дата - обычно сегодня)
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         {'period_name': '4-я четверть', 'place_count': 23, 'subjects': [{'place_count': 17, 'place': 3, 'group_avg': 3.69, 'child_avg': 4.29, 'parallels_avg': 3.56, 'subject': 'Русский язык'}, ...], 'place': 7, 'group_avg': 4.05, 'child_avg': 4.28, 'parallels_avg': 3.84}"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(date, datetime):
-            date = date.strftime("%Y-%m-%d")
+        if isinstance(_date, (date, datetime)):
+            _date = _date.strftime("%Y-%m-%d")
 
-        result = self._get(f"progress/?child={self.user['id']}&date={date}")
+        result = self._get(f"progress/?child={self.user['id']}&date={_date}")
         if self.raw_data:
             return result
         return models.Progress(**result)
 
     def getMarks(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> Dict[str, List[Union[models.Mark, dict]]]:
         """Возвращает оценки за указанный период
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         {'Русский язык': [{'question_name': 'Ответ на уроке', 'question_id': 104552170, 'number': 1, 'question_type': 'Ответ на уроке', 'mark': '4'}, ...], ...}"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(start, datetime):
+        if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
-        if isinstance(end, datetime):
+        if isinstance(end, (date, datetime)):
             end = end.strftime("%Y-%m-%d")
         marks = self._get(f"mark/?child={self.user['id']}&start={start}&end={end}")[
             "subjects"
@@ -249,20 +247,19 @@ class Ruobr(object):
         return marks
 
     def getAttendance(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> Dict[str, List[str]]:
         """Возвращает пропуски за указанный период
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         {'Русский язык': ['УП', 'Н', ...], ...}"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(start, datetime):
+        if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
-        if isinstance(end, datetime):
+        if isinstance(end, (date, datetime)):
             end = end.strftime("%Y-%m-%d")
         return self._get(
             f"attendance/?child={self.user['id']}&start={start}&end={end}"
@@ -282,20 +279,19 @@ class Ruobr(object):
         return models.FoodInfo(**result)
 
     def getFoodHistory(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> List[Union[models.FoodHistoryDay, dict]]:
         """Возвращает историю питания (обычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         [{'date': '2020-01-13', 'state': 30, 'complex__code': 'А', 'complex__uid': 'dacd83e5-2dd6-11e8-a63a-00155d039800', 'state_str': 'Заказ подтверждён', 'complex__name': 'Альтернативно-молочный', 'id': 63217607}, ...]"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(start, datetime):
+        if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
-        if isinstance(end, datetime):
+        if isinstance(end, (date, datetime)):
             end = end.strftime("%Y-%m-%d")
 
         result = self._get(
@@ -435,20 +431,19 @@ class AsyncRuobr(Ruobr):
         return [models.ControlmarksPeriod(**i) for i in result]
 
     async def getTimetable(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> List[Union[models.Lesson, dict]]:
         """Возвращает дневник целиком
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teachers Name'}, ...]"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(start, datetime):
+        if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
-        if isinstance(end, datetime):
+        if isinstance(end, (date, datetime)):
             end = end.strftime("%Y-%m-%d")
 
         result = (
@@ -461,11 +456,10 @@ class AsyncRuobr(Ruobr):
         return [models.Lesson(**i) for i in result]
 
     async def getHomework(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> List[Union[models.Lesson, dict]]:
         """Возвращает список домашнего задания (выборка из дневника)
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         [{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
 
@@ -475,40 +469,38 @@ class AsyncRuobr(Ruobr):
         return homework
 
     async def getProgress(
-        self, date: Union[str, datetime]
+        self, _date: Union[str, date, datetime]
     ) -> Union[models.Progress, dict]:
         """Возвращает статистику ученика (дата - обычно сегодня)
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         {'period_name': '4-я четверть', 'place_count': 23, 'subjects': [{'place_count': 17, 'place': 3, 'group_avg': 3.69, 'child_avg': 4.29, 'parallels_avg': 3.56, 'subject': 'Русский язык'}, ...], 'place': 7, 'group_avg': 4.05, 'child_avg': 4.28, 'parallels_avg': 3.84}"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(date, datetime):
-            date = date.strftime("%Y-%m-%d")
+        if isinstance(_date, (date, datetime)):
+            _date = _date.strftime("%Y-%m-%d")
 
-        result = await self._get(f"progress/?child={self.user['id']}&date={date}")
+        result = await self._get(f"progress/?child={self.user['id']}&date={_date}")
         if self.raw_data:
             return result
         return models.Progress(**result)
 
     async def getMarks(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> Dict[str, List[Union[models.Mark, dict]]]:
         """Возвращает оценки за указанный период
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         {'Русский язык': [{'question_name': 'Ответ на уроке', 'question_id': 104552170, 'number': 1, 'question_type': 'Ответ на уроке', 'mark': '4'}, ...], ...}"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(start, datetime):
+        if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
-        if isinstance(end, datetime):
+        if isinstance(end, (date, datetime)):
             end = end.strftime("%Y-%m-%d")
         marks = (
             await self._get(f"mark/?child={self.user['id']}&start={start}&end={end}")
@@ -520,20 +512,19 @@ class AsyncRuobr(Ruobr):
         return marks
 
     async def getAttendance(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> Dict[str, List[str]]:
         """Возвращает пропуски за указанный период
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         {'Русский язык': ['УП', 'Н', ...], ...}"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(start, datetime):
+        if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
-        if isinstance(end, datetime):
+        if isinstance(end, (date, datetime)):
             end = end.strftime("%Y-%m-%d")
         return (
             await self._get(
@@ -555,20 +546,19 @@ class AsyncRuobr(Ruobr):
         return models.FoodInfo(**result)
 
     async def getFoodHistory(
-        self, start: Union[str, datetime], end: Union[str, datetime]
+        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> List[Union[models.FoodHistoryDay, dict]]:
         """Возвращает историю питания (обычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
-        (дата также может быть объектом datetime.datetime)
 
         [{'date': '2020-01-13', 'state': 30, 'complex__code': 'А', 'complex__uid': 'dacd83e5-2dd6-11e8-a63a-00155d039800', 'state_str': 'Заказ подтверждён', 'complex__name': 'Альтернативно-молочный', 'id': 63217607}, ...]"""
 
         self._check_authorized()
         self._check_empty()
 
-        if isinstance(start, datetime):
+        if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
-        if isinstance(end, datetime):
+        if isinstance(end, (date, datetime)):
             end = end.strftime("%Y-%m-%d")
         result = (
             await self._get(
