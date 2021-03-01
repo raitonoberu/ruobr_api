@@ -204,7 +204,7 @@ class Ruobr(object):
         return homework
 
     def getProgress(
-        self, _date: Union[str, date, datetime]
+        self, _date: Union[str, date, datetime] = datetime.now()
     ) -> Union[models.Progress, dict]:
         """Возвращает статистику ученика (дата - обычно сегодня)
         Пример даты: '2020-04-27'
@@ -279,7 +279,9 @@ class Ruobr(object):
         return models.FoodInfo(**result)
 
     def getFoodHistory(
-        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
+        self,
+        start: Union[str, date, datetime] = None,
+        end: Union[str, date, datetime] = None,
     ) -> List[Union[models.FoodHistoryDay, dict]]:
         """Возвращает историю питания (обычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
@@ -288,6 +290,13 @@ class Ruobr(object):
 
         self._check_authorized()
         self._check_empty()
+
+        if start is None or end is None:
+            now = datetime.now()
+            if start is None:
+                start = datetime(now.year, 1, 1)
+            if end is None:
+                end = datetime(now.year, 12, 31)
 
         if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
@@ -469,7 +478,7 @@ class AsyncRuobr(Ruobr):
         return homework
 
     async def getProgress(
-        self, _date: Union[str, date, datetime]
+        self, _date: Union[str, date, datetime] = datetime.now()
     ) -> Union[models.Progress, dict]:
         """Возвращает статистику ученика (дата - обычно сегодня)
         Пример даты: '2020-04-27'
@@ -546,7 +555,9 @@ class AsyncRuobr(Ruobr):
         return models.FoodInfo(**result)
 
     async def getFoodHistory(
-        self, start: Union[str, date, datetime], end: Union[str, date, datetime]
+        self,
+        start: Union[str, date, datetime] = None,
+        end: Union[str, date, datetime] = None,
     ) -> List[Union[models.FoodHistoryDay, dict]]:
         """Возвращает историю питания (обычно start - первый день года, end - последний)
         Пример даты: '2020-04-27'
@@ -555,6 +566,13 @@ class AsyncRuobr(Ruobr):
 
         self._check_authorized()
         self._check_empty()
+
+        if start is None or end is None:
+            now = datetime.now()
+            if start is None:
+                start = datetime(now.year, 1, 1)
+            if end is None:
+                end = datetime(now.year, 12, 31)
 
         if isinstance(start, (date, datetime)):
             start = start.strftime("%Y-%m-%d")
