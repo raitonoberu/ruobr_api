@@ -14,6 +14,8 @@ pip install ruobr_api
 
 ## Использование
 
+Python 3.6+
+
 ```python
 >>> from ruobr_api import Ruobr
 >>> r = Ruobr('username', 'password')
@@ -23,9 +25,8 @@ User(id=7592904, status='child', first_name='Иван', last_name='Иванов'
 
 ## Зависимости
 
-[Python](https://www.python.org/) 3.6+
-
 [httpx](https://github.com/encode/httpx)
+
 [pydantic](https://github.com/samuelcolvin/pydantic)
 
 ## Документация
