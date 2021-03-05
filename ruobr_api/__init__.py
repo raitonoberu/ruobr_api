@@ -9,20 +9,21 @@ ruobr.ru/api
    >>> from ruobr_api import Ruobr
    >>> r = Ruobr('username', 'password')
    >>> r.getUser()
-   {'status': 'child', 'first_name': 'Иванов', 'last_name': 'Иван', 'middle_name': 'Иванович', 'school': 'Школа 1', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': '9В', 'id': 9999999, 'gps_tracker': False}
+   User(id=7592904, status='child', first_name='Иван', last_name='Иванов', middle_name='Иванович', school='69-МБОУ "СОШ №69"', school_is_tourniquet=False, readonly=False, school_is_food=True, group='10А', gps_tracker=False)
 
 :authors: raitonoberu
 :license: Apache License, Version 2.0, see LICENSE file
 :copyright: (c) 2021 raitonoberu
 """
 
-from .ruobr_api import (
+from .__main__ import (
     Ruobr,
     AsyncRuobr,
     AuthenticationException,
     NoSuccessException,
+    NoChildrenException,
 )
 
 __author__ = "raitonoberu"
-__version__ = "1.0.2"
+__version__ = "1.1"
 __email__ = "raitonoberu@mail.ru"

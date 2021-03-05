@@ -18,14 +18,15 @@ pip install ruobr_api
 >>> from ruobr_api import Ruobr
 >>> r = Ruobr('username', 'password')
 >>> r.getUser()
-{'status': 'child', 'first_name': 'Иванов', 'last_name': 'Иван', 'middle_name': 'Иванович', 'school': 'Школа 1', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': '9В', 'id': 9999999, 'gps_tracker': False}
+User(id=7592904, status='child', first_name='Иван', last_name='Иванов', middle_name='Иванович', school='69-МБОУ "СОШ №69"', school_is_tourniquet=False, readonly=False, school_is_food=True, group='10А', gps_tracker=False)
 ```
 
 ## Зависимости
 
 [Python](https://www.python.org/) 3.6+
 
-Модуль [httpx](https://github.com/encode/httpx) последней версии.
+[httpx](https://github.com/encode/httpx)
+[pydantic](https://github.com/samuelcolvin/pydantic)
 
 ## Документация
 
