@@ -195,7 +195,10 @@ class Ruobr(object):
         [{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
 
         timetable = self.getTimetable(start, end)
-        homework = [i for i in timetable if i["task"] is not None]
+        if self.raw_data:
+            homework = [i for i in timetable if i.get("task") is not None]
+        else:
+            homework = [i for i in timetable if i.task is not None]
 
         return homework
 
@@ -474,7 +477,10 @@ class AsyncRuobr(Ruobr):
         [{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
 
         timetable = await self.getTimetable(start, end)
-        homework = [i for i in timetable if i["task"] is not None]
+        if self.raw_data:
+            homework = [i for i in timetable if i.get("task") is not None]
+        else:
+            homework = [i for i in timetable if i.task is not None]
 
         return homework
 
