@@ -478,7 +478,7 @@ class AsyncRuobr(Ruobr):
 
         timetable = await self.getTimetable(start, end)
         if self.raw_data:
-            homework = [i for i in timetable if i.get("task") is not None]
+            homework = [i for i in timetable if "task" in i]
         else:
             homework = [i for i in timetable if i.task is not None]
 
