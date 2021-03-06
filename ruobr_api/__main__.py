@@ -327,6 +327,10 @@ class Ruobr(object):
 
 
 class AsyncRuobr(Ruobr):
+    async def _check_authorized(self):
+        if not self.isAuthorized:
+            await self.getUser()
+
     async def _get(self, target: str) -> dict:
         """Метод для получения данных"""
 
@@ -408,7 +412,7 @@ class AsyncRuobr(Ruobr):
 
         [{'post_date': '2020-04-26 22:36:11', 'author': 'Author', 'read': True, 'text': 'text', 'clean_text': 'clean_text', 'id': 7777777, 'subject': 'TITLE'}, ...]"""
 
-        self._check_authorized()
+        await self._check_authorized()
 
         result = (await self._get("mail/"))["messages"]
         if self.raw_data:
@@ -418,7 +422,7 @@ class AsyncRuobr(Ruobr):
     async def readMessage(self, id: Union[int, str]) -> None:
         """Помечает сообщение как прочитанное"""
 
-        self._check_authorized()
+        await self._check_authorized()
 
         await self._get(f"mail/read/?message={id}")
 
@@ -427,7 +431,7 @@ class AsyncRuobr(Ruobr):
 
         [{'marks': {'Subject': 'Mark', ...}, 'rom': 'I', 'period': 1, 'title': '1-я четверть'}, ...]"""
 
-        self._check_authorized()
+        await self._check_authorized()
         self._check_empty()
 
         result = await self._get(f"controlmark/?child={self.user['id']}")
@@ -443,7 +447,7 @@ class AsyncRuobr(Ruobr):
 
         [{'topic': (опц)'Topic', 'task': (опц){'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teachers Name'}, ...]"""
 
-        self._check_authorized()
+        await self._check_authorized()
         self._check_empty()
 
         if isinstance(start, (date, datetime)):
@@ -481,7 +485,7 @@ class AsyncRuobr(Ruobr):
 
         {'period_name': '4-я четверть', 'place_count': 23, 'subjects': [{'place_count': 17, 'place': 3, 'group_avg': 3.69, 'child_avg': 4.29, 'parallels_avg': 3.56, 'subject': 'Русский язык'}, ...], 'place': 7, 'group_avg': 4.05, 'child_avg': 4.28, 'parallels_avg': 3.84}"""
 
-        self._check_authorized()
+        await self._check_authorized()
         self._check_empty()
 
         if isinstance(_date, (date, datetime)):
@@ -500,7 +504,7 @@ class AsyncRuobr(Ruobr):
 
         {'Русский язык': [{'question_name': 'Ответ на уроке', 'question_id': 104552170, 'number': 1, 'question_type': 'Ответ на уроке', 'mark': '4'}, ...], ...}"""
 
-        self._check_authorized()
+        await self._check_authorized()
         self._check_empty()
 
         if isinstance(start, (date, datetime)):
@@ -524,7 +528,7 @@ class AsyncRuobr(Ruobr):
 
         {'Русский язык': ['УП', 'Н', ...], ...}"""
 
-        self._check_authorized()
+        await self._check_authorized()
         self._check_empty()
 
         if isinstance(start, (date, datetime)):
@@ -542,7 +546,7 @@ class AsyncRuobr(Ruobr):
 
         {'subsidy': 0, 'account': 999999999, 'total_take_off': 372423, 'total_add': 363000, 'balance_on_start_year': 17113, 'balance': 7690, 'default_complex': 'default_complex'}"""
 
-        self._check_authorized()
+        await self._check_authorized()
         self._check_empty()
 
         result = (await self._get(f"food/?child={self.user['id']}"))["account"]
@@ -560,7 +564,7 @@ class AsyncRuobr(Ruobr):
 
         [{'date': '2020-01-13', 'state': 30, 'complex__code': 'А', 'complex__uid': 'dacd83e5-2dd6-11e8-a63a-00155d039800', 'state_str': 'Заказ подтверждён', 'complex__name': 'Альтернативно-молочный', 'id': 63217607}, ...]"""
 
-        self._check_authorized()
+        await self._check_authorized()
         self._check_empty()
 
         if start is None or end is None:
@@ -588,7 +592,7 @@ class AsyncRuobr(Ruobr):
 
         [{'title': 'title', 'clean_text': 'text without html tags', 'author': 'author', 'school_name': 'school num 1', 'school_id': 10, 'text': '<p>text</p>', 'date': '2020-11-03', 'pub_date': '2020-11-03 15:50:270', 'id': 100001}...]"""
 
-        self._check_authorized()
+        await self._check_authorized()
 
         result = await self._get("news/")
         if self.raw_data:
