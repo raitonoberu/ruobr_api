@@ -25,5 +25,5 @@ from .__main__ import (
 )
 
 __author__ = "raitonoberu"
-__version__ = "1.2"
+__version__ = "1.2.1"
 __email__ = "raitonoberu@mail.ru"
