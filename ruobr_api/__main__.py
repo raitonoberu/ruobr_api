@@ -360,7 +360,8 @@ class AsyncRuobr(Ruobr):
         return response
 
     async def getUser(self) -> Union[models.User, dict]:
-        """Возвращает информацию об ученике
+        """Авторизует и возвращает информацию об ученике
+        После авторизации информация доступна в свойстве user
         Если профиль родительский, используйте метод setChild() для выбора ребёнка
 
         {'status': 'child', 'first_name': 'first_name', 'last_name': 'last_name', 'middle_name': 'middle_name', 'school': 'school', 'school_is_tourniquet': False, 'readonly': False, 'school_is_food': True, 'group': 'group', 'id': 9999999, 'gps_tracker': False}"""
@@ -394,7 +395,7 @@ class AsyncRuobr(Ruobr):
         return self.user
 
     async def getChildren(self) -> List[Union[models.User, dict]]:
-        """Возвращает список детей текущего аккаунта (для обработки родительских профилей)
+        """Возвращает список детей текущего аккаунта (для обработки родительских аккаунтов)
 
         [{'first_name': 'first_name1', 'last_name': 'last_name1', 'middle_name': 'middle_name1', 'school': 'school1', 'school_is_tourniquet': False, 'school_is_food': True, 'group': 'group1', 'id': 9999999, 'readonly': False}, ...]"""
 
@@ -403,7 +404,7 @@ class AsyncRuobr(Ruobr):
         return self._children
 
     async def setChild(self, id: int) -> None:
-        """Установить номер ребёнка, если профиль родительский"""
+        """Установить номер ребёнка (для обработки родительских аккаунтов)"""
 
         self.child = id
 
@@ -467,7 +468,7 @@ class AsyncRuobr(Ruobr):
     async def getHomework(
         self, start: Union[str, date, datetime], end: Union[str, date, datetime]
     ) -> List[Union[models.Lesson, dict]]:
-        """Возвращает список домашнего задания (выборка из дневника)
+        """Возвращает список домашних заданий (выборка из дневника)
         Пример даты: '2020-04-27'
 
         [{'topic': (опц)'Topic', 'task': {'title': 'Task_title', 'doc': False, 'requires_solutions': False, 'deadline': '2020-04-24', 'test_id': None, 'type': 'group', 'id': 99999999}, 'time_start': '08:30:00', 'date': '2020-04-24', 'id': 175197390, 'subject': 'Subject', 'time_end': '09:15:00', 'staff': 'Teacher's Name}, ...]"""
