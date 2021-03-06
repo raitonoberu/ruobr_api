@@ -27,7 +27,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/raitonoberu/ruobr_api",
-    download_url="https://github.com/raitonoberu/ruobr_api/archive/v{}.zip".format(
+    download_url="https://github.com/raitonoberu/ruobr_api/archive/{}.zip".format(
         version
     ),
     license="Apache License, Version 2.0, see LICENSE file",
