@@ -10,7 +10,7 @@ from setuptools import setup
 """
 
 
-version = "1.1"
+version = "1.1.1"
 
 with open("README.md", encoding="utf-8") as f:
     long_description = f.read()
@@ -32,7 +32,7 @@ setup(
     ),
     license="Apache License, Version 2.0, see LICENSE file",
     packages=["ruobr_api"],
-    install_requires=["httpx"],
+    install_requires=["httpx", "pydantic"],
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
