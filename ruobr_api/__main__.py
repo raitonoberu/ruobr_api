@@ -5,25 +5,11 @@
 :copyright: (c) 2021 raitonoberu
 """
 from . import models
+from .exceptions import AuthenticationException, NoChildrenException, NoSuccessException
 import httpx
 import base64
 from datetime import datetime, date
 from typing import Dict, List, Union
-
-
-class AuthenticationException(Exception):
-    def __init__(self, text):
-        self.text = text
-
-
-class NoSuccessException(Exception):
-    def __init__(self, text):
-        self.text = text
-
-
-class NoChildrenException(Exception):
-    def __init__(self, text):
-        self.text = text
 
 
 class Ruobr(object):

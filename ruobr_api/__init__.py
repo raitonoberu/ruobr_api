@@ -19,6 +19,9 @@ ruobr.ru/api
 from .__main__ import (
     Ruobr,
     AsyncRuobr,
+)
+
+from .exceptions import (
     AuthenticationException,
     NoSuccessException,
     NoChildrenException,
