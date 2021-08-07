@@ -77,7 +77,7 @@ class Message(SubscriptableBaseModel):
 
 
 class MessageDetail(SubscriptableBaseModel):
-    upload_date: datetime
+    upload_date: datetime = None
     author_img: str
     author: str
     text: str
@@ -124,7 +124,7 @@ class ControlmarksPeriod(SubscriptableBaseModel):
 class MarkStatistics(SubscriptableBaseModel):
     percent_int: int
     indx: int
-    percent: float
+    percent: str
     state_count_mark: int
     state_mark: str
 
