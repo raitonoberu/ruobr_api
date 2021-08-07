@@ -331,9 +331,7 @@ class AsyncRuobr(Ruobr):
         try:
             response = response.json()
         except:
-            raise NoSuccessException(
-                f"Произошла ошибка на сервере: {response.status_code}"
-            )
+            raise NoSuccessException(response.text)
         if isinstance(response, dict):  # В случае ошибки возвращается словарь
             if "success" in response.keys():
                 if not (response["success"]):
@@ -391,11 +389,6 @@ class AsyncRuobr(Ruobr):
         if not self.isAuthorized:
             await self.getUser()
         return self._children
-
-    async def setChild(self, id: int) -> None:
-        """Установить номер ребёнка (для обработки родительских аккаунтов)"""
-
-        self.child = id
 
     async def getMail(self) -> List[Union[models.Message, dict]]:
         """Возвращает почту
