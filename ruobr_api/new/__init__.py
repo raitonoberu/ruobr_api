@@ -16,7 +16,7 @@ api3d.ruobr.ru
 :copyright: (c) 2021 raitonoberu
 """
 
-from ruobr_api.new.__main__ import Ruobr
+from ruobr_api.new.__main__ import Ruobr, AsyncRuobr
 
 __author__ = "raitonoberu"
 __version__ = "1.2.1"
