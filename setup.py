@@ -31,7 +31,7 @@ setup(
         version
     ),
     license="Apache License, Version 2.0, see LICENSE file",
-    packages=["ruobr_api"],
+    packages=["ruobr_api", "ruobr_api.new"],
     install_requires=["httpx", "pydantic"],
     classifiers=[
         "Intended Audience :: Developers",
