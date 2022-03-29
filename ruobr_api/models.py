@@ -27,6 +27,7 @@ class User(SubscriptableBaseModel):
     school_is_food: bool
     group: str
     gps_tracker: bool
+    balance: int = None  # idk some schools don't return it
 
 
 class Message(SubscriptableBaseModel):
