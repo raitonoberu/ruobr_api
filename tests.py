@@ -162,8 +162,8 @@ class NewRuobrTests(unittest.TestCase):
     def test_getBooks(self):
         self.assertIsNotNone(new_ruobr.getBooks())
 
-    def test_getIos(self):
-        self.assertIsNotNone(new_ruobr.getIos())
+    def test_getUsefulLinks(self):
+        self.assertIsNotNone(new_ruobr.getUsefulLinks())
 
     def test_getGuide(self):
         self.assertIsNotNone(new_ruobr.getGuide())
@@ -219,8 +219,8 @@ class NewAsyncRuobrTests(unittest.TestCase):
     def test_getBooks(self):
         self.assertIsNotNone(loop.run_until_complete(new_aruobr.getBooks()))
 
-    def test_getIos(self):
-        self.assertIsNotNone(loop.run_until_complete(new_aruobr.getIos()))
+    def test_getUsefulLinks(self):
+        self.assertIsNotNone(loop.run_until_complete(new_aruobr.getUsefulLinks()))
 
     def test_getGuide(self):
         self.assertIsNotNone(loop.run_until_complete(new_aruobr.getGuide()))
