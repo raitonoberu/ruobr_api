@@ -123,4 +123,4 @@ class NewsItem(SubscriptableBaseModel):
     school_id: int
     text: str
     date: date
-    pub_date: datetime
+    pub_date: Union[datetime, date]
