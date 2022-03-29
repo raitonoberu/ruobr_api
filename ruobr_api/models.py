@@ -4,7 +4,7 @@
 :license: Apache License, Version 2.0, see LICENSE file
 :copyright: (c) 2021 raitonoberu
 """
-from typing import Dict, List
+from typing import Dict, List, Union
 from pydantic import BaseModel
 from datetime import datetime, time, date
 
@@ -31,7 +31,7 @@ class User(SubscriptableBaseModel):
 
 class Message(SubscriptableBaseModel):
     id: int
-    post_date: datetime
+    post_date: Union[datetime, date]
     author: str
     read: bool
     text: str
