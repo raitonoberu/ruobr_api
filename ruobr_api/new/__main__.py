@@ -118,7 +118,8 @@ class Ruobr(object):
         self.child = id
 
     def getMail(self) -> List[Union[models.Message, dict]]:
-        """Возвращает почту"""
+        """Возвращает почту
+        Если в сообщении type_id == 2, то last_msg_text содержит HTML-разметку"""
 
         self._check_authorized()
 
@@ -129,13 +130,16 @@ class Ruobr(object):
 
     def getMessage(
         self, message: Union[int, models.Message]
-    ) -> List[Union[models.MessageDetail, dict]]:
-        """Возвращает подробную информацию о сообщении"""
+    ) -> Union[models.MessageDetail, dict]:
+        """Возвращает подробную информацию о сообщении
+        Если в сообщении type_id == 2, то возвращает None"""
 
         self._check_authorized()
         self._check_empty()
 
         if isinstance(message, models.Message):
+            if message.type_id == 2:
+                return None
             message = message.id
 
         result = self._get(f"mail/{message}/?child={self.user['id']}")["data"]
@@ -280,18 +284,16 @@ class Ruobr(object):
         # return models.Food(**result)
         return result
 
-    def getIos(self) -> dict:
-        """Возвращает информацию о ..."""
-        # TODO: узнать возвращаемые данные и добавить модели
+    def getUsefulLinks(self) -> Union[models.UsefulLinks, dict]:
+        """Возвращает полезные ссылки"""
 
         self._check_authorized()
         self._check_empty()
 
         result = self._get(f"ios/?child={self.user['id']}")["data"]
-        # if self.raw_data:
-        #     return result
-        # return models.Ios(**result)
-        return result
+        if self.raw_data:
+            return result
+        return models.UsefulLinks(**result)
 
     def getGuide(self) -> Union[models.Guide, dict]:
         """Возвращает информацию об учебном заведении"""
@@ -400,7 +402,8 @@ class AsyncRuobr(Ruobr):
         return self._children
 
     async def getMail(self) -> List[Union[models.Message, dict]]:
-        """Возвращает почту"""
+        """Возвращает почту
+        Если в сообщении type_id == 2, то last_msg_text содержит HTML-разметку"""
 
         await self._check_authorized()
 
@@ -411,13 +414,16 @@ class AsyncRuobr(Ruobr):
 
     async def getMessage(
         self, message: Union[int, models.Message]
-    ) -> List[Union[models.MessageDetail, dict]]:
-        """Возвращает подробную информацию о сообщении"""
+    ) -> Union[models.MessageDetail, dict]:
+        """Возвращает подробную информацию о сообщении
+        Если в сообщении type_id == 2, то возвращает None"""
 
         await self._check_authorized()
         self._check_empty()
 
         if isinstance(message, models.Message):
+            if message.type_id == 2:
+                return None
             message = message.id
 
         result = await self._get(f"mail/{message}/?child={self.user['id']}")
@@ -562,18 +568,16 @@ class AsyncRuobr(Ruobr):
         # return models.Food(**result)
         return result["data"]
 
-    async def getIos(self) -> dict:
-        """Возвращает информацию о ..."""
-        # TODO: узнать возвращаемые данные и добавить модели
+    async def getUsefulLinks(self) -> Union[models.UsefulLinks, dict]:
+        """Возвращает полезные ссылки"""
 
         await self._check_authorized()
         self._check_empty()
 
         result = await self._get(f"ios/?child={self.user['id']}")
-        # if self.raw_data:
-        #     return result
-        # return models.Ios(**result)
-        return result["data"]
+        if self.raw_data:
+            return result["data"]
+        return models.Ios(**result["data"])
 
     async def getGuide(self) -> Union[models.Guide, dict]:
         """Возвращает информацию об учебном заведении"""

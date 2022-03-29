@@ -4,7 +4,7 @@
 :license: Apache License, Version 2.0, see LICENSE file
 :copyright: (c) 2021 raitonoberu
 """
-from typing import List
+from typing import List, Union
 from ruobr_api.models import SubscriptableBaseModel
 from datetime import datetime, time, date
 
@@ -20,11 +20,14 @@ class User(SubscriptableBaseModel):
     user_img: str
     school: str
     school_terrirtory_id: int
-    school_is_tourniquet: bool
+    school_is_tourniquet: int
     readonly: bool
     school_is_food: int
     group: str
     gps_tracker: bool
+    balance: int = None
+    tourniquet: int = None
+    mau_balance: int = None
 
 
 class LessonTask(SubscriptableBaseModel):
@@ -60,9 +63,16 @@ class Lesson(SubscriptableBaseModel):
     staff_id: int
 
 
+class Reciver(SubscriptableBaseModel):
+    role: int
+    user_id: int
+    user_img: str
+    verbose_name: str
+
+
 class Message(SubscriptableBaseModel):
     id: int
-    type_id: int
+    type_id: int  # 1 - plain text, 2 - html
     update_date: datetime
     post_date: datetime
     author: str
@@ -73,20 +83,30 @@ class Message(SubscriptableBaseModel):
     clean_text: str
     subject: str
     count_people: int
-    recivers_list: List  # TODO
+    recivers_list: List[Reciver] = None
 
 
-class MessageDetail(SubscriptableBaseModel):
-    upload_date: datetime = None
+class Comment(SubscriptableBaseModel):
+    id: int
+    author_id: int
+    post_date: datetime
+    update_date: datetime
     author_img: str
     author: str
     text: str
-    comments: List  # TODO
+
+
+class MessageDetail(SubscriptableBaseModel):
+    update_date: datetime
+    author_img: str
+    author: str
+    text: str
+    comments: List[Comment]
     count_recivers: int
     post_date: datetime
     role_str: str
     role: int
-    recivers_list: List  # TODO
+    recivers_list: List[Reciver]
     author_id: int
     subject: str
 
@@ -146,7 +166,7 @@ class AllMarks(SubscriptableBaseModel):
     title: str
     need_five: int
     avg_mark: float
-    control_mark: int
+    control_mark: Union[int, str]  # empty string if no value
     need_four: int
     date_start: date
     period: int
@@ -160,6 +180,42 @@ class AllMarks(SubscriptableBaseModel):
     subject: str
 
 
+class Direction(SubscriptableBaseModel):
+    cnt: int
+    direction_str: str
+    indx: int
+    percent: str
+    percent_int: int
+
+
+class Petition(SubscriptableBaseModel):
+    certificate_monthly_payment: List  # TODO
+    created: str
+    fund: int
+    fund_str: str
+    module_id: int
+    module_name: str
+    msg: str
+    parent_pay: List  # TODO
+    parent_pay_status: int
+    petition_pfdo_id: int
+    program_id: int
+    program_img: str
+    program_name_full: str
+    program_name_short: str
+    program_school: str
+    program_territory: str
+    program_territory_img: str
+    pt_pfdo_contract_date_end: str
+    pt_pfdo_contract_start_day: str
+    pt_pfdo_group_end: str
+    pt_pfdo_group_start: str
+    sdg_id: int
+    sdg_name: str
+    status: str
+    status_str: int
+
+
 class Certificate(SubscriptableBaseModel):
     id: int
     status_actul: int
@@ -167,14 +223,14 @@ class Certificate(SubscriptableBaseModel):
     cert_group_name: str
     cert_group_id: int
     balance_start: str
-    petition_bad: List  # TODO
+    petition_bad: List[Petition]
     rmc_nominal: float
     cert_territory_img: str
     date_actual: datetime
-    do_direction: List  # TODO
+    do_direction: List[Direction]
     number_cert: str
     cert_territory: str
-    petition_good: List  # TODO
+    petition_good: List[Petition]
 
 
 class Birthday(SubscriptableBaseModel):
@@ -190,7 +246,7 @@ class FoodInfo(SubscriptableBaseModel):
     account: str
     uid: str
     day_limit: str
-    vizit: list  # TODO
+    vizit: List  # TODO
     balance: str
     default_complex: str
 
@@ -219,3 +275,21 @@ class Guide(SubscriptableBaseModel):
     teacher_list: List[Teacher]
     fullname: str
     territory: str
+
+
+class Link(SubscriptableBaseModel):
+    id: int
+    about: str
+    href: str
+    img: str
+
+
+class Category(SubscriptableBaseModel):
+    id: int
+    link_list: List[Link]
+    categories: str
+
+
+class UsefulLinks(SubscriptableBaseModel):
+    categories_list: List[Category]
+    link_without_category_list: List  # TODO
