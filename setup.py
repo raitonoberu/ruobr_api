@@ -10,9 +10,6 @@ from ruobr_api import __author__, __version__, __email__
 :copyright: (c) 2021 raitonoberu
 """
 
-
-version = "1.2.2"
-
 with open("README.md", encoding="utf-8") as f:
     long_description = f.read()
 
@@ -29,7 +26,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/raitonoberu/ruobr_api",
     download_url="https://github.com/raitonoberu/ruobr_api/archive/{}.zip".format(
-        version
+        __version__
     ),
     license="Apache License, Version 2.0, see LICENSE file",
     packages=["ruobr_api"],

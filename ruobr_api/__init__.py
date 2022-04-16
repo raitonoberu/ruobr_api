@@ -24,5 +24,5 @@ from ruobr_api.exceptions import (
 )
 
 __author__ = "raitonoberu"
-__version__ = "1.2.1"
+__version__ = "2.0.0"
 __email__ = "raitonoberu@mail.ru"
