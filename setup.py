@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from io import open
 from setuptools import setup
+from ruobr_api import __author__, __version__, __email__
 
 """
 :authors: raitonoberu
@@ -17,9 +18,9 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="ruobr_api",
-    version=version,
-    author="raitonoberu",
-    author_email="raitonoberu@mail.ru",
+    version=__version__,
+    author=__author__,
+    author_email=__email__,
     description=(
         u"Python модуль для доступа к API электронного дневника "
         u"Кемеровской области (cabinet.ruobr.ru API wrapper)"
@@ -31,8 +32,8 @@ setup(
         version
     ),
     license="Apache License, Version 2.0, see LICENSE file",
-    packages=["ruobr_api", "ruobr_api.new"],
-    install_requires=["httpx", "pydantic"],
+    packages=["ruobr_api"],
+    install_requires=["httpx"],
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
