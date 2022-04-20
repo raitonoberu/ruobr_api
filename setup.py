@@ -3,7 +3,7 @@
 from io import open
 from setuptools import setup
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 __author__ = "raitonoberu"
 __email__ = "raitonoberu@mail.ru"
 
