@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 from io import open
 from setuptools import setup
-from ruobr_api import __author__, __version__, __email__
+
+__version__ = "2.0.0"
+__author__ = "raitonoberu"
+__email__ = "raitonoberu@mail.ru"
 
 """
 :authors: raitonoberu
@@ -19,8 +22,8 @@ setup(
     author=__author__,
     author_email=__email__,
     description=(
-        u"Python модуль для доступа к API электронного дневника "
-        u"Кемеровской области (cabinet.ruobr.ru API wrapper)"
+        "Python модуль для доступа к API электронного дневника "
+        "Кемеровской области (cabinet.ruobr.ru API wrapper)"
     ),
     long_description=long_description,
     long_description_content_type="text/markdown",
