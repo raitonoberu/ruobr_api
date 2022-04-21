@@ -388,7 +388,7 @@ class AsyncRuobr(Ruobr):
         return result["data"]
 
     async def get_food_info(self, _date: Union[str, date, datetime] = None) -> dict:
-        """Возвращает информацию о питании. None если пусто"""
+        """Возвращает информацию о питании. Может быть пустым"""
 
         await self._check_authorized()
         self._check_empty()
