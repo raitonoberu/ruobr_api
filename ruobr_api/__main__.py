@@ -188,7 +188,7 @@ class Ruobr(object):
             _date = _date.strftime("%Y-%m-%d")
 
         return self._get(
-            f"food/calendary/?child={self.user['id']}&food_type={self.user['school_is_food']}&selected_date={_date}"
+            f"food/calendary/?child={self.user['id']}&food_type={self.user['school_is_food']}&selected_date={_date}&food_menu_complex=1"
         )["data"]
 
     def get_classmates(self) -> List[dict]:
@@ -400,7 +400,7 @@ class AsyncRuobr(Ruobr):
             _date = _date.strftime("%Y-%m-%d")
 
         result = await self._get(
-            f"food/calendary/?child={self.user['id']}&food_type={self.user['school_is_food']}&selected_date={_date}"
+            f"food/calendary/?child={self.user['id']}&food_type={self.user['school_is_food']}&selected_date={_date}&food_menu_complex=1"
         )
         return result["data"]
 
